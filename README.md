@@ -26,10 +26,13 @@ In Service Portal, load `AjaxProxy` as a widget dependency or paste it into the 
 var UserLookupAjax = Class.create();
 UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 
-  // Public: the GlideAjax boundary. Maps { userId } from the client to the private args.
-  getUserSummary: AjaxAdapter.expose('_getUserSummary', ['userId']),
+  // Public: the GlideAjax boundary. Maps { userId } from the client to the private args
+  // and enforces the contract: a missing/mistyped userId rejects as badRequest.
+  getUserSummary: AjaxAdapter.expose('_getUserSummary', [
+    { name: 'userId', type: 'string', required: true },
+  ]),
 
-  // Private: typed in, typed out, unit-testable. No getParameter, no JSON, no try/catch.
+  // Private: typed in, typed out, unit-testable. No getParameter, no JSON, no try/catch, no guards.
   _getUserSummary: function(userId) {
     var gr = new GlideRecord('sys_user');
     if (!gr.get(userId)) {
@@ -56,6 +59,8 @@ That's the whole loop. A complete, runnable example is in [`examples/user-lookup
 
 - **No boilerplate.** No `getParameter`, `JSON.parse`, `JSON.stringify`, or per-method `try/catch`. The public method is a single line.
 - **Types survive the wire.** `42` arrives as `42`, not `"42"`. `null` stays `null`, `undefined` stays `undefined`. Raw GlideAjax stringifies everything.
+- **Dates survive too.** A JS `Date` parameter arrives server-side as a real `GlideDateTime`; a returned `GlideDateTime` resolves client-side as a `Date`. Always the UTC instant, never a timezone-shifted string.
+- **Declared parameter contracts.** `{ name, type, required, default }` at the boundary. Violations reject as `badRequest` with every problem listed at once, and your private method never runs — so it needs no guard clauses.
 - **Unit-testable logic.** Private methods take typed args and return typed values. Call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
 - **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method.
 - **Typed errors.** Branch on `error.kind`, never `indexOf` a message string.
@@ -121,14 +126,31 @@ Each is independent and none complicates the basic `call`.
 | --- | --- | --- |
 | `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message`, it's authored and safe. |
 | `server` | An unexpected server bug | Show a generic message. `error.reference` deep-links to the log. |
-| `badRequest` | Params weren't serializable / payload wasn't valid JSON | Fix the caller. |
+| `badRequest` | Params weren't serializable, payload wasn't a valid JSON object, a parameter contract was violated, or the payload was oversized | Fix the caller. `error.message` lists every violation. |
 | `timeout` | No answer in time | Safe to retry manually, or opt into `retry` for reads. |
 | `empty` | Empty answer | Check `client_callable`, ACLs, the method name, or the session. |
 | `malformed` | Answer wasn't an AjaxAdapter envelope | You're calling a non-AjaxAdapter script include. |
 
 ## Server API
 
-`AjaxAdapter.expose('_privateName', ['p1', 'p2'])` returns the public method. The listed names map, in order, to the private method's arguments.
+`AjaxAdapter.expose('_privateName', [...])` returns the public method. Each entry maps, in order, to one of the private method's arguments — a plain string for the mapping alone, or a contract object to have the boundary validate for you:
+
+```js
+getUserSummary: AjaxAdapter.expose('_getUserSummary', [
+  { name: 'userId', type: 'string', required: true },
+  { name: 'options', type: 'object', default: {} },
+]),
+```
+
+- `type`: one of `string`, `number`, `boolean`, `object`, `array`, `date` (`date` matches a marshalled JS `Date`, which arrives as a `GlideDateTime`).
+- `required`: rejects when the key is absent.
+- `default`: used when the key is absent (so the private method never sees `undefined`).
+
+Violations reject with kind `badRequest` — all listed in one message — and the private method never runs, so it can skip its guard clauses. Nothing is logged (a caller bug is not a server bug). A malformed contract itself (e.g. an unknown `type`) throws when the script include loads, not on the first call.
+
+**Dates.** A client `Date` parameter arrives as a real `GlideDateTime`; returning a `GlideDateTime` (or a server `Date`) resolves client-side as a `Date`. On the wire it travels as `{ "$dateTime": "<ISO 8601 UTC>" }` — visible in the network tab, unambiguous, always the instant. Disable per call with `{ dates: false }` on the client.
+
+**Guardrails.** Returning a `GlideElement` or any other Java object now fails loudly (logged server error naming the offending key) instead of silently serializing as `{}`. Payloads over `AjaxAdapter.MAX_PAYLOAD_LENGTH` (default 1,000,000 chars, reassignable) reject as `badRequest`. And when the installed `AjaxProxy`'s major.minor differs from `AjaxAdapter`'s, every call logs a version-skew warning — the two files share one wire format, so always update them together.
 
 Two ways for a private method to fail:
 
@@ -140,7 +162,7 @@ throw AjaxAdapter.fail('This user has no manager assigned');
 throw new Error('userId is required');
 ```
 
-Returning normally sends the value as the result. **Return plain JS values.** Coerce Glide values at the boundary — `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` — because `JSON.stringify` on a Java object (a `GlideElement`, a `GlideDateTime`) can silently serialize as `{}` under Rhino instead of throwing. (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity.)
+Returning normally sends the value as the result. **Return plain JS values** — coerce fields with `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity). Two exceptions the adapter handles for you: a `GlideDateTime` (or server `Date`) is marshalled to a client `Date` automatically, and any *other* Java object (a `GlideElement`, a `GlideRecord`) is rejected with a loud, logged server error instead of silently serializing as `{}`.
 
 Because the private methods never touch `this.request`, the whole class is reusable server-side. `new UserLookupAjax()._getUserSummary(id)` works in a Business Rule or scheduled job too.
 

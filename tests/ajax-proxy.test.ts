@@ -14,6 +14,7 @@ type CallOptions = {
 	onComplete?: () => void;
 	timeout?: number;
 	retry?: boolean | number | { attempts?: number; delay?: number; on?: string[] };
+	dates?: boolean;
 };
 type ChannelOptions = { debounce?: number; latest?: boolean; timeout?: number; retry?: CallOptions['retry'] };
 type AjaxProxyApi = {
@@ -97,6 +98,13 @@ describe('AjaxProxy.call — transport and envelope', () => {
 		expect(lastRequest().params.get('sysparm_payload')).toBe('{}');
 	});
 
+	it('sends its version with every call for the server-side skew warning', () => {
+		const proxy = loadAjaxProxy();
+		void proxy.call('X', 'read').catch(() => undefined);
+
+		expect(lastRequest().params.get('sysparm_adapter_version')).toBe(proxy.VERSION);
+	});
+
 	it('resolves with undefined when the envelope omits result', async () => {
 		const proxy = loadAjaxProxy();
 		const pending = proxy.call('X', 'read');
@@ -178,6 +186,71 @@ describe('AjaxProxy.call — transport and envelope', () => {
 		const error = await rejectionOf(proxy.call('X', 'write', circular));
 		expect(error.kind).toBe(proxy.ErrorKind.BAD_REQUEST);
 		expect(FakeGlideAjax.instances).toHaveLength(0);
+	});
+});
+
+describe('AjaxProxy.call — date marshalling', () => {
+	const ISO = '2026-08-01T09:00:00.000Z';
+
+	it('sends a Date parameter as the wire tag, at any nesting depth', () => {
+		const proxy = loadAjaxProxy();
+		void proxy.call('X', 'reschedule', { due: new Date(ISO), nested: { list: [new Date(ISO)] } }).catch(() => undefined);
+
+		expect(JSON.parse(lastRequest().params.get('sysparm_payload') ?? '')).toEqual({
+			due: { $dateTime: ISO },
+			nested: { list: [{ $dateTime: ISO }] },
+		});
+	});
+
+	it('rejects an invalid Date parameter with badRequest before any request is fired', async () => {
+		const proxy = loadAjaxProxy();
+
+		const error = await rejectionOf(proxy.call('X', 'reschedule', { due: new Date('nonsense') }));
+		expect(error.kind).toBe(proxy.ErrorKind.BAD_REQUEST);
+		expect(error.message).toContain('invalid Date');
+		expect(FakeGlideAjax.instances).toHaveLength(0);
+	});
+
+	it('revives a tagged date-time in the result as a real Date', async () => {
+		const proxy = loadAjaxProxy();
+		const pending = proxy.call('X', 'read');
+
+		lastRequest().answer(JSON.stringify({ ok: true, result: { count: 3, asOf: { $dateTime: ISO } } }));
+		// toEqual only matches when asOf is a real Date with this exact time; a plain
+		// { $dateTime } object or an ISO string would fail it.
+		expect(await pending).toEqual({ count: 3, asOf: new Date(ISO) });
+	});
+
+	it('revives a tagged date-time inside error details too', async () => {
+		const proxy = loadAjaxProxy();
+		const rejection = rejectionOf(proxy.call('X', 'read'));
+
+		lastRequest().answer(JSON.stringify({
+			ok: false,
+			error: { kind: 'business', message: 'Too early', details: { opensAt: { $dateTime: ISO } } },
+		}));
+		const error = await rejection;
+		expect(error.details).toEqual({ opensAt: new Date(ISO) });
+	});
+
+	it('leaves look-alike objects alone: extra keys or a non-string tag value', async () => {
+		const proxy = loadAjaxProxy();
+		const pending = proxy.call('X', 'read');
+
+		lastRequest().answer(JSON.stringify({ ok: true, result: { a: { $dateTime: ISO, extra: 1 }, b: { $dateTime: 42 } } }));
+		expect(await pending).toEqual({ a: { $dateTime: ISO, extra: 1 }, b: { $dateTime: 42 } });
+	});
+
+	it('dates: false disables both directions for that call', async () => {
+		const proxy = loadAjaxProxy();
+		const pending = proxy.call('X', 'read', { due: new Date(ISO) }, { dates: false });
+
+		// Sent as the plain toJSON ISO string, not the tag.
+		expect(JSON.parse(lastRequest().params.get('sysparm_payload') ?? '')).toEqual({ due: ISO });
+
+		// A tag in the answer stays a plain object.
+		lastRequest().answer(JSON.stringify({ ok: true, result: { asOf: { $dateTime: ISO } } }));
+		expect(await pending).toEqual({ asOf: { $dateTime: ISO } });
 	});
 });
 

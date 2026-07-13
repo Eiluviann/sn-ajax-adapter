@@ -30,10 +30,13 @@ A Script Include that extends `AbstractAjaxProcessor`. Pair each public method w
 var UserLookupAjax = Class.create();
 UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 
-  // Public: the GlideAjax boundary. Maps { userId } from the client to the private args.
-  getUserSummary: AjaxAdapter.expose('_getUserSummary', ['userId']),
+  // Public: the GlideAjax boundary. Maps { userId } from the client to the private args
+  // and enforces the contract: a missing/mistyped userId rejects as badRequest.
+  getUserSummary: AjaxAdapter.expose('_getUserSummary', [
+    { name: 'userId', type: 'string', required: true },
+  ]),
 
-  // Private: typed in, typed out, unit-testable. No getParameter, no JSON, no try/catch.
+  // Private: typed in, typed out, unit-testable. No getParameter, no JSON, no try/catch, no guards.
   _getUserSummary: function(userId) {
     var gr = new GlideRecord('sys_user');
     if (!gr.get(userId)) {
@@ -62,6 +65,8 @@ That's the whole loop.
 
 - **No boilerplate.** No `getParameter`, `JSON.parse`, `JSON.stringify`, or per-method `try/catch`. The public method is a single line.
 - **Types survive the wire.** `42` arrives as `42`, not `"42"`. `null` stays `null`, `undefined` stays `undefined`. Raw GlideAjax stringifies everything.
+- **Dates survive too.** A JS `Date` parameter arrives server-side as a real `GlideDateTime`; a returned `GlideDateTime` resolves client-side as a `Date`. Always the UTC instant, never a timezone-shifted string.
+- **Declared parameter contracts.** `{ name, type, required, default }` at the boundary. Violations reject as `badRequest` with every problem listed at once, and your private method never runs — so it needs no guard clauses.
 - **Unit-testable logic.** Private methods take typed args and return typed values. Call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
 - **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method.
 - **Typed errors.** Branch on `error.kind`, never `indexOf` a message string.
@@ -322,7 +327,7 @@ Related: `AjaxProxy.for(scriptInclude, defaults?)`, `AjaxProxy.channel(scriptInc
 | --- | --- | --- |
 | `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message`, it's authored and safe. |
 | `server` | An unexpected server bug | Show a generic message. `error.reference` deep-links to the log. |
-| `badRequest` | Params weren't serializable / payload wasn't valid JSON | Fix the caller. |
+| `badRequest` | Params weren't serializable, payload wasn't a valid JSON object, a parameter contract was violated, or the payload was oversized | Fix the caller. `error.message` lists every violation. |
 | `timeout` | No answer in time | Safe to retry manually, or opt into `retry` for reads. |
 | `empty` | Empty answer | Check `client_callable`, ACLs, the method name, or the session. |
 | `malformed` | Answer wasn't an AjaxAdapter envelope | You're calling a non-AjaxAdapter script include. |
@@ -331,7 +336,16 @@ Constants live on `AjaxProxy.ErrorKind` (`BUSINESS`, `SERVER`, `BAD_REQUEST`, `T
 
 ### Server: `expose()` and `fail()`
 
-`AjaxAdapter.expose('_privateName', ['p1', 'p2'])` returns the public method. The listed names map, in order, to the private method's arguments. An omitted parameter arrives as `undefined`, so keep optional ones last.
+`AjaxAdapter.expose('_privateName', [...])` returns the public method. Each entry maps, in order, to one of the private method's arguments — a plain string for the mapping alone (an omitted parameter arrives as `undefined`, so keep optional ones last), or a contract object to have the boundary validate for you:
+
+```js
+getUserSummary: AjaxAdapter.expose('_getUserSummary', [
+  { name: 'userId', type: 'string', required: true },
+  { name: 'options', type: 'object', default: {} },
+]),
+```
+
+`type` is one of `string` / `number` / `boolean` / `object` / `array` / `date` (`date` matches a marshalled JS `Date`, which arrives as a `GlideDateTime`). `required` rejects when the key is absent; `default` fills it instead. Violations reject with kind `badRequest` — all listed in one message — and the private method never runs, so it can skip its guard clauses. Nothing is logged: a caller bug is not a server bug. A malformed contract itself (an unknown `type`) throws when the script include loads, not on the first call.
 
 Two ways for a private method to fail:
 
@@ -345,14 +359,16 @@ throw new Error('userId is required');
 
 Returning normally sends the value as the result. Absence that's a normal branch is a value too (`return { found: false }`), and the client resolves with it. Reserve `fail()` for failures the caller must act on, and plain `throw` for "this should never happen."
 
-**Return plain JS values.** Coerce Glide values at the boundary — `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` — because `JSON.stringify` on a Java object (a `GlideElement`, a `GlideDateTime`) can silently serialize as `{}` under Rhino instead of throwing. (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity.)
+**Return plain JS values** — coerce fields with `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity). Two exceptions the adapter handles for you: a `GlideDateTime` (or server `Date`) is marshalled to a client `Date` automatically, and any *other* Java object (a `GlideElement`, a `GlideRecord`) is rejected with a loud, logged server error instead of silently serializing as `{}`.
 
 ### How it works
 
-- **Wire format.** All parameters ride as one JSON object under `sysparm_payload`. Because the whole object is JSON, every value keeps its type, and a parameter named like a GlideAjax internal (`name`, `processor`) is just a key, so it can't collide. Only `sysparm_name` (the method) and `sysparm_processor` (the script include) are reserved by GlideAjax.
+- **Wire format.** All parameters ride as one JSON object under `sysparm_payload`. Because the whole object is JSON, every value keeps its type, and a parameter named like a GlideAjax internal (`name`, `processor`) is just a key, so it can't collide. Only `sysparm_name` (the method) and `sysparm_processor` (the script include) are reserved by GlideAjax. The proxy also sends its version under `sysparm_adapter_version`; the server logs a warning when the two files' major.minor drift apart, since they share this wire format.
+- **Dates.** A date-time travels as a single-key tag, `{ "$dateTime": "<ISO 8601 UTC>" }` — readable in the network tab, unambiguous, always the instant. The proxy turns a `Date` parameter into the tag and the adapter revives it as a `GlideDateTime`; a returned `GlideDateTime` (or server `Date`) makes the reverse trip and resolves as a client `Date`. Only an object whose *sole* key is the tag converts, so ordinary data can't collide. Opt out per call with `{ dates: false }`. Display formatting stays yours: to show a date the way ServiceNow formats it for the user, return `gdt.getDisplayValue()` as a plain string instead.
 - **Envelope.** The server always answers with a JSON string: `{ ok: true, result }` or `{ ok: false, error: { kind, message, reference?, details? } }`. `AjaxProxy` unwraps it, you never see it.
 - **Two-tier errors.** A plain `throw` is logged server-side under a `gs.generateGUID()` reference and returned as a generic `server` error (no internal detail leaves the instance). `AjaxAdapter.fail(...)` passes your message through untouched as `business` and is not logged.
 - **`undefined` round-trips as `undefined`**, `null` as `null`. The server gets exactly what you passed, and vice versa.
+- **Guardrails.** Returning a `GlideElement` or any other Java object fails loudly (a logged server error naming the offending key) instead of silently serializing as `{}`. Payloads over `AjaxAdapter.MAX_PAYLOAD_LENGTH` (default 1,000,000 characters, reassignable) reject as `badRequest`.
 
 ### Retry and idempotency
 

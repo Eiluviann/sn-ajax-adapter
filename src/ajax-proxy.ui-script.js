@@ -7,10 +7,21 @@
 var AjaxProxy = (function() {
 
 	/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
-	var VERSION = '1.0.1';
+	var VERSION = '1.1.0';
 
 	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
 	var PAYLOAD_PARAM = 'sysparm_payload';
+
+	/**
+	 * Single-key wrapper marking a date-time on the wire. Must match AjaxAdapter.DATETIME_TAG.
+	 * A Date parameter is sent as { $dateTime: '<ISO 8601 UTC>' } and arrives server-side as a
+	 * GlideDateTime; a tagged value in the answer is revived to a Date. Disable per call with
+	 * { dates: false }.
+	 */
+	var DATETIME_TAG = '$dateTime';
+
+	/** Param carrying this file's VERSION so the server can warn on a mismatched install. */
+	var VERSION_PARAM = 'sysparm_adapter_version';
 
 	/** Discriminators on a rejected call's Error.kind. Branch on these, not on messages. */
 	var ErrorKind = {
@@ -45,13 +56,16 @@ var AjaxProxy = (function() {
 	 * @param {Object<string, *>} [parameters] - Sent as one JSON payload (sysparm_payload). Because the whole
 	 *   object is JSON-stringified, every value keeps its exact type on the server. A number stays a number,
 	 *   never '42'. An undefined value (or an omitted key) sends nothing and the private method receives
-	 *   undefined. null is sent and received as null.
-	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|{ attempts?: number, delay?: number, on?: string[] } }} [options]
+	 *   undefined. null is sent and received as null. A Date arrives server-side as a GlideDateTime, and a
+	 *   returned GlideDateTime resolves as a Date (see the dates option).
+	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|{ attempts?: number, delay?: number, on?: string[] }, dates?: boolean }} [options]
 	 *   Passing any handler selects callback style. Omitting them all is promise style. onError (when provided)
 	 *   replaces the global handler for this call. timeout overrides the default for this call. retry controls
 	 *   automatic re-attempts, OFF by default. Opt in with retry: true (retry a transient ErrorKind.TIMEOUT
 	 *   once with backoff), a number for total attempts, or { attempts, delay, on } to tune which kinds retry.
 	 *   Retry re-sends the same payload, so only enable it for idempotent (read) methods (see header).
+	 *   dates (default true) marshals Date parameters and revives tagged date-times in the answer; set false
+	 *   to send a Date as its plain ISO string and leave tags untouched.
 	 * @returns {Promise<*>} Resolves with the private method's return value. Rejects with a typed Error (see ErrorKind).
 	 * @throws {Error} When a provided handler is not a function (caller bug).
 	 */
@@ -62,7 +76,8 @@ var AjaxProxy = (function() {
 		assertHandler(opts.onComplete, 'onComplete');
 
 		var timeoutMs = typeof opts.timeout === 'number' ? opts.timeout : defaultTimeoutMs;
-		var promise = invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, normalizeRetry(opts.retry));
+		var shouldMarshalDates = opts.dates !== false;
+		var promise = invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, normalizeRetry(opts.retry), shouldMarshalDates);
 
 		var hasCallback = Boolean(opts.onSuccess || opts.onError || opts.onComplete);
 
@@ -116,7 +131,7 @@ var AjaxProxy = (function() {
 	 *   userLookup('getUserSummary', { userId: g_form.getUniqueValue() }).then(render);
 	 *
 	 * @param {string} scriptIncludeName - The script include every returned call targets.
-	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|Object }} [defaults]
+	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|Object, dates?: boolean }} [defaults]
 	 *   Any option call() accepts. Merged under each call's own options, which win per field, so a
 	 *   proxy-wide onError/timeout/retry applies unless a specific call overrides it.
 	 * @returns {function(string, Object<string, *>=, Object=): Promise<*>} (publicMethodName, parameters, options) => Promise.
@@ -143,16 +158,16 @@ var AjaxProxy = (function() {
 	 *
 	 * @param {string} scriptIncludeName
 	 * @param {string} publicMethodName
-	 * @param {{ debounce?: number, latest?: boolean, timeout?: number, retry?: * }} [channelOptions]
+	 * @param {{ debounce?: number, latest?: boolean, timeout?: number, retry?: *, dates?: boolean }} [channelOptions]
 	 *   debounce waits that many ms of quiet before firing. latest (default true) drops out-of-order
-	 *   responses. timeout/retry pass through to each underlying call.
+	 *   responses. timeout/retry/dates pass through to each underlying call.
 	 * @returns {function(Object<string, *>=): Promise<*>} (parameters) => Promise for the latest call only.
 	 */
 	function channel(scriptIncludeName, publicMethodName, channelOptions) {
 		var settings = channelOptions || {};
 		var debounceMs = typeof settings.debounce === 'number' ? settings.debounce : 0;
 		var dropStale = settings.latest !== false;
-		var callOptions = { timeout: settings.timeout, retry: settings.retry };
+		var callOptions = { timeout: settings.timeout, retry: settings.retry, dates: settings.dates };
 		var seq = 0;
 		var latestSeq = 0;
 		var debounceTimer;
@@ -240,18 +255,19 @@ var AjaxProxy = (function() {
 	 * @param {string} publicMethodName
 	 * @param {Object<string, *>} [parameters]
 	 * @param {number} timeoutMs
+	 * @param {boolean} shouldMarshalDates - Marshal Date params to wire tags and revive tags in the answer.
 	 * @returns {Promise<*>}
 	 */
-	function invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs) {
+	function invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs, shouldMarshalDates) {
 		return new Promise(function(resolve, reject) {
 			var lbl = scriptIncludeName + '.' + publicMethodName;
 
-			// Guard serialization up front: a circular / non-serializable parameter is the
-			// caller's bug, so fail fast with a typed badRequest rather than waiting for the
-			// server to reject a payload it never received.
+			// Guard serialization up front: a circular / non-serializable parameter (or an
+			// invalid Date) is the caller's bug, so fail fast with a typed badRequest rather
+			// than waiting for the server to reject a payload it never received.
 			var payloadJson;
 			try {
-				payloadJson = JSON.stringify(parameters || {});
+				payloadJson = JSON.stringify(parameters || {}, shouldMarshalDates ? serializeDateParameter : undefined);
 			} catch (serializeError) {
 				reject(ajaxError(ErrorKind.BAD_REQUEST, lbl + ' has non-serializable parameters: ' + serializeError.message, {
 					scriptInclude: scriptIncludeName,
@@ -278,6 +294,7 @@ var AjaxProxy = (function() {
 			var ajax = new GlideAjax(scriptIncludeName);
 			ajax.addParam('sysparm_name', publicMethodName);
 			ajax.addParam(PAYLOAD_PARAM, payloadJson);
+			ajax.addParam(VERSION_PARAM, VERSION);
 
 			timer = setTimeout(function() {
 				settle(reject, ajaxError(ErrorKind.TIMEOUT, lbl + ' timed out after ' + timeoutMs + 'ms', {
@@ -296,7 +313,7 @@ var AjaxProxy = (function() {
 				}
 				var envelope;
 				try {
-					envelope = JSON.parse(answer);
+					envelope = JSON.parse(answer, shouldMarshalDates ? reviveDateTag : undefined);
 				} catch (parseError) {
 					settle(reject, ajaxError(ErrorKind.MALFORMED, lbl + ' returned a non-JSON answer: ' + parseError.message, {
 						scriptInclude: scriptIncludeName,
@@ -337,12 +354,13 @@ var AjaxProxy = (function() {
 	 * @param {Object<string, *>} [parameters]
 	 * @param {number} timeoutMs
 	 * @param {{ attempts: number, delay: number, on: string[] }} retry
+	 * @param {boolean} shouldMarshalDates
 	 * @returns {Promise<*>}
 	 */
-	function invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, retry) {
+	function invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, retry, shouldMarshalDates) {
 		var attempt = 0;
 		function run() {
-			return invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs).then(null, function(error) {
+			return invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs, shouldMarshalDates).then(null, function(error) {
 				attempt += 1;
 				var canRetry = attempt < retry.attempts && retry.on.indexOf(error.kind) !== -1;
 				if (!canRetry) {
@@ -379,6 +397,47 @@ var AjaxProxy = (function() {
 			delay: typeof retry.delay === 'number' ? retry.delay : on.delay,
 			on: Array.isArray(retry.on) ? retry.on : on.on,
 		};
+	}
+
+	/**
+	 * JSON.stringify replacer: converts a Date parameter into the wire date tag.
+	 * Reads `this[key]` rather than `value` because Date.prototype.toJSON runs before a
+	 * replacer sees the value; the holder object still has the original Date.
+	 *
+	 * @param {string} key
+	 * @param {*} value
+	 * @returns {*}
+	 * @throws {Error} On an invalid Date (caller bug, surfaced as badRequest by invoke()).
+	 */
+	function serializeDateParameter(key, value) {
+		var original = this[key];
+		if (!(original instanceof Date)) {
+			return value;
+		}
+		if (isNaN(original.getTime())) {
+			throw new Error('parameter "' + key + '" is an invalid Date');
+		}
+		var tag = {};
+		tag[DATETIME_TAG] = original.toISOString();
+		return tag;
+	}
+
+	/**
+	 * JSON.parse reviver: converts a wire date tag back into a Date. Only an object whose SOLE
+	 * key is the tag with a string value is revived, so ordinary answer data can't collide.
+	 *
+	 * @param {string} key
+	 * @param {*} value
+	 * @returns {*}
+	 */
+	function reviveDateTag(key, value) {
+		if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+			return value;
+		}
+		if (typeof value[DATETIME_TAG] !== 'string' || Object.keys(value).length !== 1) {
+			return value;
+		}
+		return new Date(value[DATETIME_TAG]);
 	}
 
 	/**
@@ -480,6 +539,7 @@ var AjaxProxy = (function() {
 			onComplete: over.onComplete !== undefined ? over.onComplete : base.onComplete,
 			timeout: over.timeout !== undefined ? over.timeout : base.timeout,
 			retry: over.retry !== undefined ? over.retry : base.retry,
+			dates: over.dates !== undefined ? over.dates : base.dates,
 		};
 	}
 

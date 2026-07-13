@@ -36,11 +36,26 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	 * The client calls: AjaxProxy.call('UserLookupAjax', 'getUserSummary',
 	 *   { userId: id, options: { includeGroups: true } }). The named params map
 	 *   positionally to the private method's arguments.
+	 *
+	 * A contract entry ({ name, type?, required?, default? }) is enforced at the
+	 * boundary: violations reject with kind 'badRequest' (all listed at once,
+	 * nothing logged) and the private method never runs, so it can trust its
+	 * arguments. A plain string entry is just the positional mapping.
 	 * ------------------------------------------------------------------ */
 
-	getUserSummary: AjaxAdapter.expose('_getUserSummary', ['userId', 'options']),
-	getActiveUserCount: AjaxAdapter.expose('_getActiveUserCount', ['companyId']),
-	getManagerName: AjaxAdapter.expose('_getManagerName', ['userId']),
+	getUserSummary: AjaxAdapter.expose('_getUserSummary', [
+		{ name: 'userId', type: 'string', required: true },
+		{ name: 'options', type: 'object', default: {} },
+	]),
+	getActiveUserCount: AjaxAdapter.expose('_getActiveUserCount', [
+		{ name: 'companyId', type: 'string' },
+	]),
+	getManagerName: AjaxAdapter.expose('_getManagerName', [
+		{ name: 'userId', type: 'string', required: true },
+	]),
+	getUsersCreatedSince: AjaxAdapter.expose('_getUsersCreatedSince', [
+		{ name: 'since', type: 'date', required: true },
+	]),
 
 	/* ------------------------------------------------------------------ *
 	 * Private methods: typed in, typed out, unit testable.
@@ -49,19 +64,16 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	/**
 	 * Builds a summary of one sys_user record.
 	 *
+	 * The AJAX boundary contract already guarantees userId is a non-empty-checked string and
+	 * options is an object (defaulted to {}), so there are no guard clauses here. Note the
+	 * contract only protects the AJAX path: if this method is also called directly by other
+	 * server code, that caller is trusted the same way any internal function trusts its caller.
+	 *
 	 * @param {string} userId - sys_id of the sys_user record.
-	 * @param {{ includeGroups?: boolean }} [options] - Optional flags.
+	 * @param {{ includeGroups?: boolean }} options - Optional flags (boundary default: {}).
 	 * @returns {{ found: true, name: string, email: string, groups?: string[] } | { found: false }}
-	 * @throws {Error} When userId is missing or not a string (caller bug).
 	 */
 	_getUserSummary: function(userId, options) {
-		if (typeof userId !== 'string' || userId === '') {
-			// Treated as a client bug (a correct caller guards its input before calling): plain throw,
-			// logged, kind 'server'. If empty input is a NORMAL state for your UI (e.g. an unset field),
-			// prefer `throw AjaxAdapter.fail('Select a user first')` to avoid log noise and show a message.
-			throw new Error('userId is required and must be a non-empty string');
-		}
-
 		var userGr = new GlideRecord('sys_user');
 		if (!userGr.get(userId)) {
 			// Expected outcome of valid use: model it in the result, don't throw.
@@ -73,7 +85,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 			name: String(userGr.getValue('name') || ''),
 			email: String(userGr.getValue('email') || ''),
 		};
-		if (options && options.includeGroups === true) {
+		if (options.includeGroups === true) {
 			summary.groups = this._getGroupNames(userId);
 		}
 		return summary;
@@ -107,7 +119,9 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	 */
 	_getManagerName: function(userId) {
 		if (typeof userId !== 'string' || userId === '') {
-			// Contract violation: a correct caller never triggers this. Plain throw, logged, anonymized.
+			// The boundary contract already enforces this on the AJAX path. The guard is kept
+			// deliberately because this method is also called directly by server-side code
+			// (Business Rules, jobs), which bypasses the contract. Plain throw, logged, anonymized.
 			throw new Error('userId is required and must be a non-empty string');
 		}
 
@@ -131,6 +145,24 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 			name: String(managerGr.getValue('name') || ''),
 			email: String(managerGr.getValue('email') || ''),
 		};
+	},
+
+	/**
+	 * Counts users created on or after a moment. Demonstrates date marshalling: the client
+	 * passes a JS Date ({ since: new Date(...) }), it arrives here as a real GlideDateTime
+	 * (the 'date' contract type guarantees it), and the returned GlideDateTime resolves
+	 * client-side as a JS Date.
+	 *
+	 * @param {GlideDateTime} since - Moment to count from (client sent a Date).
+	 * @returns {{ count: number, asOf: GlideDateTime }} asOf arrives client-side as a Date.
+	 */
+	_getUsersCreatedSince: function(since) {
+		var userGa = new GlideAggregate('sys_user');
+		userGa.addQuery('sys_created_on', '>=', since);
+		userGa.addAggregate('COUNT');
+		userGa.query();
+		var count = userGa.next() ? Number(userGa.getAggregate('COUNT')) || 0 : 0;
+		return { count: count, asOf: new GlideDateTime() };
 	},
 
 	/* ------------------------------------------------------------------ *
