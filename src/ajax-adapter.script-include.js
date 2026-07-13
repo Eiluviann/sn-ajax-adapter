@@ -2,7 +2,7 @@
  * AjaxAdapter: factory that adapts a private method to the GlideAjax calling convention.
  * Client-side counterpart: AjaxProxy.
  *
- * Full documentation, install steps, and design notes: docs/ajax-adapter.mdx and README.md.
+ * Full documentation, install steps, and design notes: https://github.com/Eiluviann/sn-ajax-adapter
  */
 var AjaxAdapter = Class.create();
 

@@ -2,7 +2,7 @@
  * AjaxProxy: client-side remote proxy for AjaxAdapter script includes.
  * Server-side counterpart: AjaxAdapter.
  *
- * Full documentation, install steps, and design notes: docs/ajax-adapter.mdx and README.md.
+ * Full documentation, install steps, and design notes: https://github.com/Eiluviann/sn-ajax-adapter
  */
 var AjaxProxy = (function() {
 
