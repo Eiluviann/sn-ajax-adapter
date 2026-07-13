@@ -6,6 +6,12 @@
  */
 var AjaxProxy = (function() {
 
+	/**
+	 * Semver of this file. Bump on every change (see the repo's CHANGELOG.md) so a
+	 * developer can tell which version is installed on an instance: `AjaxProxy.VERSION`.
+	 */
+	var VERSION = '1.0.0';
+
 	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
 	var PAYLOAD_PARAM = 'sysparm_payload';
 
@@ -459,6 +465,7 @@ var AjaxProxy = (function() {
 	}
 
 	return {
+		VERSION: VERSION,
 		call: call,
 		for: forScriptInclude,
 		channel: channel,

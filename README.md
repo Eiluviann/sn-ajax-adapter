@@ -150,6 +150,18 @@ examples/  UserLookupAjax, a complete endpoint showing every pattern
 docs/      ajax-adapter.mdx, the full, styled documentation
 ```
 
+## Version
+
+Both files carry the same [semver](https://semver.org/), bumped together on every change. See [`CHANGELOG.md`](CHANGELOG.md). To check what's installed on an instance:
+
+```js
+gs.info(AjaxAdapter.VERSION); // server, in Background Scripts
+```
+
+```js
+console.log(AjaxProxy.VERSION); // client, in the browser console
+```
+
 ## License
 
 [MIT](LICENSE).

@@ -7,6 +7,12 @@
 var AjaxAdapter = Class.create();
 
 /**
+ * Semver of this file. Bump on every change (see the repo's CHANGELOG.md) so a
+ * developer can tell which version is installed on an instance: `AjaxAdapter.VERSION`.
+ */
+AjaxAdapter.VERSION = '1.0.0';
+
+/**
  * Single carrier param for the JSON argument payload. Must match AjaxProxy. GlideAjax only
  * reserves its own sysparm_name / sysparm_processor, so this name is free to rebrand per app.
  */
