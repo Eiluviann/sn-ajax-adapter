@@ -1,6 +1,6 @@
 ---
 title: AjaxAdapter + AjaxProxy
-description: Type-safe, boilerplate-free GlideAjax — write a typed method on the server, call it like a promise on the client.
+description: Type-safe, boilerplate-free GlideAjax. Write a typed method on the server, call it like a promise on the client.
 ---
 
 # AjaxAdapter + AjaxProxy
@@ -13,18 +13,18 @@ Write a typed, unit-testable method on the server. Call it from the browser like
 
 ## Quick start
 
-**This is all most endpoints ever need.** Everything after it is reference — read it when you want it.
+**This is all most endpoints ever need.** Everything after it is reference. Read it when you want it.
 
 ### 1. Install once
 
 Two platform records, created one time:
 
-- **`AjaxAdapter`** — a Script Include (**Client callable: off**). Paste `ajax-adapter.script-include.js`.
-- **`AjaxProxy`** — a UI Script (**Global: on** for classic UI; or paste into your Service Portal widget). Paste `ajax-proxy.ui-script.js`.
+- **`AjaxAdapter`**: a Script Include (**Client callable: off**). Paste `ajax-adapter.script-include.js`.
+- **`AjaxProxy`**: a UI Script (**Global: on** for classic UI, or paste into your Service Portal widget). Paste `ajax-proxy.ui-script.js`.
 
 ### 2. Write an endpoint (server)
 
-A Script Include that extends `AbstractAjaxProcessor`. Pair each public method with a private one; the public method is one line.
+A Script Include that extends `AbstractAjaxProcessor`. Pair each public method with a private one, so the public method is one line.
 
 ```js
 var UserLookupAjax = Class.create();
@@ -62,16 +62,16 @@ That's the whole loop.
 
 - **No boilerplate.** No `getParameter`, `JSON.parse`, `JSON.stringify`, or per-method `try/catch`. The public method is a single line.
 - **Types survive the wire.** `42` arrives as `42`, not `"42"`. `null` stays `null`, `undefined` stays `undefined`. Raw GlideAjax stringifies everything.
-- **Unit-testable logic.** Private methods take typed args and return typed values — call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
-- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks — your pick, same method.
+- **Unit-testable logic.** Private methods take typed args and return typed values. Call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
+- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method.
 - **Typed errors.** Branch on `error.kind`, never `indexOf` a message string.
-- **Safe by default.** A server bug is logged with a correlation id and anonymized to the client — no stack, table, or sys_id leaks. The console links straight to the log row.
+- **Safe by default.** A server bug is logged with a correlation id and anonymized to the client. No stack, table, or sys_id leaks. The console links straight to the log row.
 - **Collision-proof params.** A parameter named `name`, `order`, or `constructor` can't clobber GlideAjax internals.
 - **Resilient.** Every call has a timeout instead of hanging forever, with opt-in retry for transient failures.
 
 ---
 
-## Before → After
+## Before and after
 
 <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:'1rem',alignItems:'start',margin:'1.5rem 0'}}>
 <div style={{minWidth:0}}>
@@ -174,7 +174,7 @@ ga.getXMLAnswer(function(answer) {
   if (error.kind === AjaxProxy.ErrorKind.BUSINESS) {
     showUser(error.message);          // safe, authored message
   } else {
-    logBug(error.reference);          // server bug, ref → log row
+    logBug(error.reference);          // server bug, ref links to log row
   }
 });
 ```
@@ -211,7 +211,7 @@ AjaxProxy.call('X', 'm', { count });
 
 ## Features
 
-Each of these is independent. Reach for one when you want it; none of them complicate the basic `call`.
+Each of these is independent. Reach for one when you want it, none of them complicate the basic `call`.
 
 ### Promise or callbacks, same method
 
@@ -227,7 +227,7 @@ AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId }, {
 
 ### Typed errors you branch on
 
-Every rejection carries `kind` (see the [table](#errorkind)), plus `scriptInclude`, `method`, and — for a bug — a `reference`. No message parsing, ever.
+Every rejection carries `kind` (see the [table](#errorkind)), plus `scriptInclude`, `method`, and, for a bug, a `reference`. No message parsing, ever.
 
 ```js
 .catch(error => {
@@ -241,7 +241,7 @@ Every rejection carries `kind` (see the [table](#errorkind)), plus `scriptInclud
 
 ### Timeout, plus opt-in retry
 
-Every call times out instead of hanging forever. Retry is **off by default** — opt in for transient failures on idempotent (read) methods.
+Every call times out instead of hanging forever. Retry is **off by default**. Opt in for transient failures on idempotent (read) methods.
 
 ```js
 AjaxProxy.call('X', 'm', params, { timeout: 15000 });                  // times out, no retry
@@ -251,9 +251,9 @@ AjaxProxy.call('X', 'read', params, { retry: { attempts: 3, delay: 300 } });
 
 > **Writes:** a timeout doesn't prove the server didn't run the method, so retry can double-apply a create/update. Leave retry off (the default) for non-idempotent methods.
 
-### `AjaxProxy.for()` — bind a script include once
+### `AjaxProxy.for()`: bind a script include once
 
-Stop repeating the script-include name and shared options at every call site. `AjaxProxy` is a singleton (there's no `new` — it's a namespace of functions), so `for()` is the way to get a reusable, pre-configured caller. It returns a plain function.
+Stop repeating the script-include name and shared options at every call site. `AjaxProxy` is a singleton (there's no `new`, it's a namespace of functions), so `for()` is the way to get a reusable, pre-configured caller. It returns a plain function.
 
 ```js
 const users = AjaxProxy.for('UserLookupAjax', { timeout: 15000, onError: toast });
@@ -261,7 +261,7 @@ users('getUserSummary', { userId }).then(render);
 users('getActiveUserCount', {}).then(setBadge);
 ```
 
-### `AjaxProxy.channel()` — type-ahead without race conditions
+### `AjaxProxy.channel()`: type-ahead without race conditions
 
 For live search: debounce the input and drop stale responses so only the newest result ever lands, even if an older request answers later. Superseded calls are abandoned (their promise never settles), exactly like RxJS `switchMap`.
 
@@ -270,9 +270,9 @@ const search = AjaxProxy.channel('UserLookupAjax', 'searchUsers', { debounce: 25
 input.addEventListener('input', () => search({ query: input.value }).then(render));
 ```
 
-### `AjaxProxy.setErrorHandler()` — one place for failures
+### `AjaxProxy.setErrorHandler()`: one place for failures
 
-Route every unhandled failure through your own sink — a toast, a banner, telemetry. Applies to callback-style calls that don't pass their own `onError`.
+Route every unhandled failure through your own sink: a toast, a banner, telemetry. Applies to callback-style calls that don't pass their own `onError`.
 
 ```js
 AjaxProxy.setErrorHandler(error => toast(error.message));
@@ -280,7 +280,7 @@ AjaxProxy.setErrorHandler(error => toast(error.message));
 
 ### Console-to-log in one click
 
-On a server bug, the default handler prints a deep link to the exact log row (`message STARTSWITH <reference>`). Nothing leaks — the link only opens for users with log access.
+On a server bug, the default handler prints a deep link to the exact log row (`message STARTSWITH <reference>`). Nothing leaks: the link only opens for users with log access.
 
 ```js
 AjaxProxy.setLogTable('syslog_app_scope'); // point it at a scoped app's log
@@ -308,7 +308,7 @@ In Service Portal, load `AjaxProxy` as a widget dependency or paste it into the 
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `onSuccess` / `onError` / `onComplete` | — | Callback style. Passing any of them opts out of promise style. `onComplete` runs on both paths. |
+| `onSuccess` / `onError` / `onComplete` | none | Callback style. Passing any of them opts out of promise style. `onComplete` runs on both paths. |
 | `timeout` | `60000` | Milliseconds before the call rejects with `timeout`. |
 | `retry` | off | `true` to retry a `timeout` once, a number for total attempts, or `{ attempts, delay, on }`. Only for idempotent (read) methods. |
 
@@ -320,8 +320,8 @@ Related: `AjaxProxy.for(scriptInclude, defaults?)`, `AjaxProxy.channel(scriptInc
 
 | `kind` | When | What to do |
 | --- | --- | --- |
-| `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message` — it's authored and safe. |
-| `server` | An unexpected server bug | Show a generic message; `error.reference` deep-links to the log. |
+| `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message`, it's authored and safe. |
+| `server` | An unexpected server bug | Show a generic message. `error.reference` deep-links to the log. |
 | `badRequest` | Params weren't serializable / payload wasn't valid JSON | Fix the caller. |
 | `timeout` | No answer in time | Safe to retry manually, or opt into `retry` for reads. |
 | `empty` | Empty answer | Check `client_callable`, ACLs, the method name, or the session. |
@@ -331,38 +331,38 @@ Constants live on `AjaxProxy.ErrorKind` (`BUSINESS`, `SERVER`, `BAD_REQUEST`, `T
 
 ### Server: `expose()` and `fail()`
 
-`AjaxAdapter.expose('_privateName', ['p1', 'p2'])` returns the public method. The listed names map, in order, to the private method's arguments — an omitted parameter arrives as `undefined`, so keep optional ones last.
+`AjaxAdapter.expose('_privateName', ['p1', 'p2'])` returns the public method. The listed names map, in order, to the private method's arguments. An omitted parameter arrives as `undefined`, so keep optional ones last.
 
 Two ways for a private method to fail:
 
 ```js
-// Expected failure the caller must handle → kind 'business'. Message shown, NOT logged.
+// Expected failure the caller must handle: kind 'business'. Message shown, NOT logged.
 throw AjaxAdapter.fail('This user has no manager assigned', { details: { userId } });
 
-// Contract violation / bug → kind 'server'. Logged with a correlation id, anonymized to the client.
+// Contract violation / bug: kind 'server'. Logged with a correlation id, anonymized to the client.
 throw new Error('userId is required');
 ```
 
-Returning normally sends the value as the result. Absence that's a normal branch is a value too — `return { found: false }` — and the client resolves with it. Reserve `fail()` for failures the caller must act on, and plain `throw` for "this should never happen."
+Returning normally sends the value as the result. Absence that's a normal branch is a value too (`return { found: false }`), and the client resolves with it. Reserve `fail()` for failures the caller must act on, and plain `throw` for "this should never happen."
 
 ### How it works
 
-- **Wire format.** All parameters ride as one JSON object under `sysparm_payload`. Because the whole object is JSON, every value keeps its type, and a parameter named like a GlideAjax internal (`name`, `processor`) is just a key — it can't collide. Only `sysparm_name` (the method) and `sysparm_processor` (the script include) are reserved by GlideAjax.
-- **Envelope.** The server always answers with a JSON string: `{ ok: true, result }` or `{ ok: false, error: { kind, message, reference?, details? } }`. `AjaxProxy` unwraps it; you never see it.
+- **Wire format.** All parameters ride as one JSON object under `sysparm_payload`. Because the whole object is JSON, every value keeps its type, and a parameter named like a GlideAjax internal (`name`, `processor`) is just a key, so it can't collide. Only `sysparm_name` (the method) and `sysparm_processor` (the script include) are reserved by GlideAjax.
+- **Envelope.** The server always answers with a JSON string: `{ ok: true, result }` or `{ ok: false, error: { kind, message, reference?, details? } }`. `AjaxProxy` unwraps it, you never see it.
 - **Two-tier errors.** A plain `throw` is logged server-side under a `gs.generateGUID()` reference and returned as a generic `server` error (no internal detail leaves the instance). `AjaxAdapter.fail(...)` passes your message through untouched as `business` and is not logged.
-- **`undefined` round-trips as `undefined`**, `null` as `null` — the server gets exactly what you passed, and vice versa.
+- **`undefined` round-trips as `undefined`**, `null` as `null`. The server gets exactly what you passed, and vice versa.
 
-### Retry &amp; idempotency
+### Retry and idempotency
 
-Retry is **off by default**. Opt in with `retry: true` (retry `timeout` once, with exponential backoff), a number of attempts, or `{ attempts, delay, on }`. Retry is transparent — same resolve/reject contract. Because a timeout doesn't prove the server skipped the work, **only enable retry for idempotent (read) methods** — retrying a write can double-apply it. Retry also up to doubles the worst-case wait before a call finally fails.
+Retry is **off by default**. Opt in with `retry: true` (retry `timeout` once, with exponential backoff), a number of attempts, or `{ attempts, delay, on }`. Retry is transparent, same resolve/reject contract. Because a timeout doesn't prove the server skipped the work, **only enable retry for idempotent (read) methods**: retrying a write can double-apply it. Retry also up to doubles the worst-case wait before a call finally fails.
 
 ### `channel()` semantics
 
-A superseded call is *abandoned*: its promise never resolves or rejects, so only the latest call settles. Consequence: a stale call's `.finally()` / `.then()` never runs — don't hang cleanup you always need off a channel call. `latest` (default `true`) drops out-of-order responses; `debounce` waits for quiet before firing.
+A superseded call is *abandoned*: its promise never resolves or rejects, so only the latest call settles. Consequence: a stale call's `.finally()` / `.then()` never runs, so don't hang cleanup you always need off a channel call. `latest` (default `true`) drops out-of-order responses. `debounce` waits for quiet before firing.
 
 ### Reusing the logic server-side
 
-Extending `AbstractAjaxProcessor` only **adds** the AJAX plumbing — it doesn't stop you using the class as ordinary server code. The private methods take typed args and never touch `this.request`, so any server caller can use them directly:
+Extending `AbstractAjaxProcessor` only **adds** the AJAX plumbing, it doesn't stop you using the class as ordinary server code. The private methods take typed args and never touch `this.request`, so any server caller can use them directly:
 
 ```js
 // In a Business Rule, scheduled job, or another script include:
@@ -373,7 +373,7 @@ Splitting the logic into a separate AJAX-free Service script include is an optio
 
 ### Testing
 
-Private methods are the unit under test — call them directly, no transport:
+Private methods are the unit under test. Call them directly, no transport:
 
 ```js
 var result = new UserLookupAjax()._getUserSummary('62826bf03710200044e0bfc8bcbe5df1');
@@ -383,7 +383,7 @@ They receive real typed arguments and return real typed values, so an ATF server
 
 ### Calling without `AjaxProxy`
 
-Any GlideAjax caller can hit the same endpoint — build the payload yourself. There's no separate parameter format to learn.
+Any GlideAjax caller can hit the same endpoint. Build the payload yourself. There's no separate parameter format to learn.
 
 ```js
 var ga = new GlideAjax('UserLookupAjax');

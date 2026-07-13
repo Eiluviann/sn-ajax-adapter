@@ -1,10 +1,10 @@
 /**
- * UserLookupAjax — example client-callable script include built on AjaxAdapter.
+ * UserLookupAjax: example client-callable script include built on AjaxAdapter.
  *
  * Script Include settings:
  *   Name:            UserLookupAjax
  *   Client callable: true
- *   (Set an ACL / roles as appropriate — client callable means any UI user can reach it.)
+ *   (Set an ACL / roles as appropriate. Client callable means any UI user can reach it.)
  *
  * Pattern:
  *   - Each endpoint is a pair: a one-line public method (GlideAjax boundary,
@@ -14,16 +14,16 @@
  *     unit test (ATF server test, or any harness) can call them directly:
  *       new UserLookupAjax()._getUserSummary('62826bf03710200044e0bfc8bcbe5df1', { includeGroups: true })
  *   - Three outcomes, three tools (see _getManagerName for all three):
- *       1. Value result — return the data. Absence that is a normal branch is a value
- *          too (return { found: false }); the client resolves with it.
- *       2. Expected failure the caller must handle — throw AjaxAdapter.fail(msg). The
- *          client rejects with { kind: 'business' } and your message; nothing is logged.
- *       3. Contract violation / bug — throw a plain Error. The client rejects with
+ *       1. Value result: return the data. Absence that is a normal branch is a value
+ *          too (return { found: false }), and the client resolves with it.
+ *       2. Expected failure the caller must handle: throw AjaxAdapter.fail(msg). The
+ *          client rejects with { kind: 'business' } and your message, and nothing is logged.
+ *       3. Contract violation / bug: throw a plain Error. The client rejects with
  *          { kind: 'server', reference } and the detail is logged, not leaked.
  *
- * Reuse: extending AbstractAjaxProcessor only ADDS the AJAX plumbing — it does not stop you
+ * Reuse: extending AbstractAjaxProcessor only ADDS the AJAX plumbing. It does not stop you
  * using this class as ordinary server code. A Business Rule, scheduled job, or another script
- * include can call `new UserLookupAjax()._getUserSummary(id)` directly; the private methods
+ * include can call `new UserLookupAjax()._getUserSummary(id)` directly. The private methods
  * never touch this.request, so constructing without one is fine. Splitting the logic into a
  * separate AJAX-free Service script include is an optional preference (keeping a domain layer
  * off the AJAX base class), not a requirement for reuse.
@@ -32,7 +32,7 @@ var UserLookupAjax = Class.create();
 UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 
 	/* ------------------------------------------------------------------ *
-	 * Public methods — GlideAjax boundary only, one line each.
+	 * Public methods: GlideAjax boundary only, one line each.
 	 * The client calls: AjaxProxy.call('UserLookupAjax', 'getUserSummary',
 	 *   { userId: id, options: { includeGroups: true } }). The named params map
 	 *   positionally to the private method's arguments.
@@ -43,7 +43,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	getManagerName: AjaxAdapter.expose('_getManagerName', ['userId']),
 
 	/* ------------------------------------------------------------------ *
-	 * Private methods — typed in, typed out, unit testable.
+	 * Private methods: typed in, typed out, unit testable.
 	 * ------------------------------------------------------------------ */
 
 	/**
@@ -56,7 +56,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	 */
 	_getUserSummary: function(userId, options) {
 		if (typeof userId !== 'string' || userId === '') {
-			// Treated as a client bug (a correct caller guards its input before calling): plain throw →
+			// Treated as a client bug (a correct caller guards its input before calling): plain throw,
 			// logged, kind 'server'. If empty input is a NORMAL state for your UI (e.g. an unset field),
 			// prefer `throw AjaxAdapter.fail('Select a user first')` to avoid log noise and show a message.
 			throw new Error('userId is required and must be a non-empty string');
@@ -64,7 +64,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 
 		var userGr = new GlideRecord('sys_user');
 		if (!userGr.get(userId)) {
-			// Expected outcome of valid use — model it in the result, don't throw.
+			// Expected outcome of valid use: model it in the result, don't throw.
 			return { found: false };
 		}
 
@@ -82,7 +82,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 	/**
 	 * Counts active users, optionally scoped to one company.
 	 *
-	 * @param {string} [companyId] - sys_id of a core_company record; omit for all companies.
+	 * @param {string} [companyId] - sys_id of a core_company record. Omit for all companies.
 	 * @returns {number}
 	 */
 	_getActiveUserCount: function(companyId) {
@@ -93,21 +93,21 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 		}
 		userGa.addAggregate('COUNT');
 		userGa.query();
-		// `|| 0` guards a NaN from a non-numeric aggregate — NaN would serialize to null on the wire.
+		// `|| 0` guards a NaN from a non-numeric aggregate. NaN would serialize to null on the wire.
 		return userGa.next() ? Number(userGa.getAggregate('COUNT')) || 0 : 0;
 	},
 
 	/**
-	 * Resolves a user's manager's name and email — demonstrates all three outcomes.
+	 * Resolves a user's manager's name and email. Demonstrates all three outcomes.
 	 *
 	 * @param {string} userId - sys_id of the sys_user record.
 	 * @returns {{ name: string, email: string }}
-	 * @throws {Error} When userId is missing/not a string (bug → plain throw → kind 'server').
+	 * @throws {Error} When userId is missing/not a string (bug, plain throw, kind 'server').
 	 * @throws {Error} Via AjaxAdapter.fail for expected failures the caller should surface (kind 'business').
 	 */
 	_getManagerName: function(userId) {
 		if (typeof userId !== 'string' || userId === '') {
-			// Contract violation: a correct caller never triggers this. Plain throw → logged, anonymized.
+			// Contract violation: a correct caller never triggers this. Plain throw, logged, anonymized.
 			throw new Error('userId is required and must be a non-empty string');
 		}
 

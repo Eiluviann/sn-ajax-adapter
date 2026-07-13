@@ -1,76 +1,18 @@
 /**
- * AjaxProxy — client-side remote proxy for AjaxAdapter script includes.
+ * AjaxProxy: client-side remote proxy for AjaxAdapter script includes.
+ * Server-side counterpart: AjaxAdapter.
  *
- * Ship as a UI Script (Global: true for classic UI client scripts) or paste into
- * a Service Portal widget's client script.
- *
- * A remote proxy: a browser-side stand-in for a client-callable script include built
- * with AjaxAdapter. It hides the transport (send one JSON payload, unwrap the
- * { ok, result } | { ok, error } envelope) and gives you BOTH calling styles from one
- * method:
- *
- *   Promise style — call() returns a real Promise, so .then / .catch / .finally work:
- *       AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId: id })
- *           .then(function(summary) { ... })
- *           .catch(function(error) { ... });
- *
- *   Callback style — pass handlers in the options bag (4th arg):
- *       AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId: id }, {
- *           onSuccess:  function(summary) { ... },
- *           onError:    function(error) { ... },
- *           onComplete: function() { ... },   // runs on both success and failure
- *           timeout:    15000,                // optional per-call override (ms)
- *       });
- *
- * Typed errors — branch on a field, never on a message string. Every rejection is an
- * Error with a `kind` (see AjaxProxy.ErrorKind) plus `scriptInclude`, `method`, and —
- * for a server bug — a `reference` matching the server log:
- *       .catch(function(error) {
- *           switch (error.kind) {
- *               case AjaxProxy.ErrorKind.BUSINESS: showToUser(error.message); break;
- *               case AjaxProxy.ErrorKind.TIMEOUT:  retry();                    break;
- *               default: showToUser('Something went wrong (ref: ' + error.reference + ')');
- *           }
- *       });
- *
- * Error logging never double-logs:
- *   - Callback style: omit onError and a failure goes to the global handler (default
- *     console.error, or whatever setErrorHandler installed) so it is never silently
- *     swallowed. Provide onError and the global handler does NOT run.
- *   - Promise style (no callbacks): you own the outcome via .catch; an ignored rejection
- *     surfaces once as the browser's native unhandled-rejection warning. AjaxProxy adds
- *     nothing of its own.
- *   For a server error, the default handler appends a clickable deep link to the exact log row
- *   (message STARTSWITH <reference>) so you jump from console to log with no manual query. Nothing
- *   leaks — the link only opens for users with log-table access. Build the same link in a custom
- *   handler with AjaxProxy.logUrl(error); point it at a scoped app's log with AjaxProxy.setLogTable('syslog_app_scope').
- *
- * Reliability: every call times out (default 60s, AjaxProxy.setDefaultTimeout or a
- *   per-call `timeout`) so a dropped connection or session-expiry redirect rejects with
- *   ErrorKind.TIMEOUT instead of hanging the promise forever. Retry is OFF by default; opt in per
- *   call with `retry` (true = retry a transient timeout once with backoff, a number of attempts, or
- *   { attempts, delay, on }). Retry is transparent — same resolve/reject contract.
- *   IDEMPOTENCY: a timeout does not prove the server didn't run the method, so retry can double-apply
- *   a write (create/update) — only enable it for idempotent (read) methods. It also up to doubles the
- *   worst-case wait before failing.
- *
- * The base call is all you need; the rest is an opt-in layer you reach for only when you want it:
- *   - AjaxProxy.for(name, defaults) — bind a script include with default options.
- *   - AjaxProxy.channel(name, method, { debounce, latest }) — for type-ahead / live search: debounce
- *     input and drop stale responses so only the latest result lands. Bring your own debouncing if
- *     you prefer; this changes behavior, so it is never applied to plain call()/for().
- *
- * Counterpart: AjaxAdapter (server-side factory that produces the envelope).
+ * Full documentation, install steps, and design notes: docs/ajax-adapter.mdx and README.md.
  */
 var AjaxProxy = (function() {
 
 	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
 	var PAYLOAD_PARAM = 'sysparm_payload';
 
-	/** Discriminators on a rejected call's Error.kind — branch on these, not on messages. */
+	/** Discriminators on a rejected call's Error.kind. Branch on these, not on messages. */
 	var ErrorKind = {
-		SERVER: 'server', // unexpected server bug; carries a `reference` for the server log
-		BUSINESS: 'business', // expected, developer-authored failure (AjaxAdapter.fail) — safe to show
+		SERVER: 'server', // unexpected server bug, carries a `reference` for the server log
+		BUSINESS: 'business', // expected, developer-authored failure (AjaxAdapter.fail), safe to show
 		BAD_REQUEST: 'badRequest', // the server could not read the request (malformed payload)
 		TIMEOUT: 'timeout', // no answer within the timeout window
 		EMPTY: 'empty', // empty answer: client_callable flag, ACL, unknown method, or session timeout
@@ -83,7 +25,7 @@ var AjaxProxy = (function() {
 	/** @type {string} Table the correlation reference deep-links into. Set 'syslog_app_scope' for a scoped adapter. */
 	var logTable = 'syslog';
 
-	/** @type {function(Error): void} Global fallback error handler; replace via setErrorHandler. */
+	/** @type {function(Error): void} Global fallback error handler. Replace via setErrorHandler. */
 	var globalErrorHandler = function(error) {
 		if (typeof console === 'undefined' || typeof console.error !== 'function') {
 			return;
@@ -98,16 +40,16 @@ var AjaxProxy = (function() {
 	 * @param {string} scriptIncludeName - e.g. 'UserLookupAjax' (add the scope prefix for scoped includes).
 	 * @param {string} publicMethodName - e.g. 'getUserSummary'.
 	 * @param {Object<string, *>} [parameters] - Sent as one JSON payload (sysparm_payload). Because the whole
-	 *   object is JSON-stringified, every value keeps its exact type on the server — a number stays a number,
+	 *   object is JSON-stringified, every value keeps its exact type on the server. A number stays a number,
 	 *   never '42'. An undefined value (or an omitted key) sends nothing and the private method receives
-	 *   undefined; null is sent and received as null.
+	 *   undefined. null is sent and received as null.
 	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|{ attempts?: number, delay?: number, on?: string[] } }} [options]
-	 *   Passing any handler selects callback style; omitting them all is promise style. onError (when provided)
+	 *   Passing any handler selects callback style. Omitting them all is promise style. onError (when provided)
 	 *   replaces the global handler for this call. timeout overrides the default for this call. retry controls
 	 *   automatic re-attempts, OFF by default. Opt in with retry: true (retry a transient ErrorKind.TIMEOUT
 	 *   once with backoff), a number for total attempts, or { attempts, delay, on } to tune which kinds retry.
 	 *   Retry re-sends the same payload, so only enable it for idempotent (read) methods (see header).
-	 * @returns {Promise<*>} Resolves with the private method's return value; rejects with a typed Error (see ErrorKind).
+	 * @returns {Promise<*>} Resolves with the private method's return value. Rejects with a typed Error (see ErrorKind).
 	 * @throws {Error} When a provided handler is not a function (caller bug).
 	 */
 	function call(scriptIncludeName, publicMethodName, parameters, options) {
@@ -122,7 +64,7 @@ var AjaxProxy = (function() {
 		var hasCallback = Boolean(opts.onSuccess || opts.onError || opts.onComplete);
 
 		// Promise style (no callbacks): hand back the raw promise untouched. The caller owns
-		// the outcome through .then/.catch; an ignored rejection surfaces once via the browser's
+		// the outcome through .then/.catch. An ignored rejection surfaces once via the browser's
 		// native unhandled-rejection warning. We attach no logger, so a caller that added .catch
 		// never sees a duplicate console entry.
 		if (!hasCallback) {
@@ -130,9 +72,9 @@ var AjaxProxy = (function() {
 		}
 
 		// Callback style: drive the handlers on an internal branch. The error sink is the per-call
-		// onError when provided, otherwise the global handler — so a failure is never silently
+		// onError when provided, otherwise the global handler, so a failure is never silently
 		// swallowed. When onError IS provided the global handler never runs. A throw inside a user
-		// callback is caught and logged (its own bug surfacing), never lost; onComplete always runs.
+		// callback is caught and logged (its own bug surfacing), never lost. onComplete always runs.
 		var errorSink = typeof opts.onError === 'function' ? opts.onError : globalErrorHandler;
 		promise
 			.then(
@@ -166,7 +108,7 @@ var AjaxProxy = (function() {
 	 *
 	 * @param {string} scriptIncludeName - The script include every returned call targets.
 	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|Object }} [defaults]
-	 *   Any option call() accepts. Merged under each call's own options, which win per field — so a
+	 *   Any option call() accepts. Merged under each call's own options, which win per field, so a
 	 *   proxy-wide onError/timeout/retry applies unless a specific call overrides it.
 	 * @returns {function(string, Object<string, *>=, Object=): Promise<*>} (publicMethodName, parameters, options) => Promise.
 	 */
@@ -179,11 +121,11 @@ var AjaxProxy = (function() {
 
 	/**
 	 * Opt-in layer for rapid-fire calls (type-ahead, live search): debounce and/or drop stale
-	 * responses. Returns a call function bound to one method. A superseded call is ABANDONED — its
+	 * responses. Returns a call function bound to one method. A superseded call is ABANDONED. Its
 	 * promise silently never settles (like RxJS switchMap), so `search(q).then(render)` renders only
 	 * the latest and stale keystrokes quietly do nothing. Consequence of never settling: a stale
 	 * call's .finally()/.then() never runs, so don't hang cleanup you always need off a channel call.
-	 * Nothing here touches call()/for(); reach for it only when you want it, and keep using your own
+	 * Nothing here touches call()/for(). Reach for it only when you want it, and keep using your own
 	 * debouncing if you already have it.
 	 *
 	 * @example
@@ -193,8 +135,8 @@ var AjaxProxy = (function() {
 	 * @param {string} scriptIncludeName
 	 * @param {string} publicMethodName
 	 * @param {{ debounce?: number, latest?: boolean, timeout?: number, retry?: * }} [channelOptions]
-	 *   debounce waits that many ms of quiet before firing; latest (default true) drops out-of-order
-	 *   responses; timeout/retry pass through to each underlying call.
+	 *   debounce waits that many ms of quiet before firing. latest (default true) drops out-of-order
+	 *   responses. timeout/retry pass through to each underlying call.
 	 * @returns {function(Object<string, *>=): Promise<*>} (parameters) => Promise for the latest call only.
 	 */
 	function channel(scriptIncludeName, publicMethodName, channelOptions) {
@@ -404,7 +346,7 @@ var AjaxProxy = (function() {
 	}
 
 	/**
-	 * Normalizes the `retry` option into { attempts, delay, on }. Retry is OFF by default; opt in
+	 * Normalizes the `retry` option into { attempts, delay, on }. Retry is OFF by default. Opt in
 	 * with retry: true (retry a transient timeout once), a number (total attempts), or an object
 	 * (tune each field). undefined/false/0 disable it.
 	 *
@@ -502,7 +444,7 @@ var AjaxProxy = (function() {
 
 	/**
 	 * @param {Object} base - Per-proxy defaults.
-	 * @param {Object} [override] - Per-call options; each present field wins.
+	 * @param {Object} [override] - Per-call options. Each present field wins.
 	 * @returns {Object}
 	 */
 	function mergeOptions(base, override) {

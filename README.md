@@ -13,14 +13,14 @@ Two platform records, created one time:
 
 | Record | Type | Setting | Source |
 | --- | --- | --- | --- |
-| `AjaxAdapter` | Script Include | Client callable **off** | [`src/ajax-adapter.script-include.js`](src/ajax-adapter.script-include.js) |
+| `AjaxAdapter` | Script Include | Client callable **off**. Accessible from **all application scopes** if shared | [`src/ajax-adapter.script-include.js`](src/ajax-adapter.script-include.js) |
 | `AjaxProxy` | UI Script | Global **on** (classic UI) | [`src/ajax-proxy.ui-script.js`](src/ajax-proxy.ui-script.js) |
 
 In Service Portal, load `AjaxProxy` as a widget dependency or paste it into the widget's client script.
 
 ## Quick start
 
-**Server** — a Script Include extending `AbstractAjaxProcessor`. Pair each public method with a private one; the public method is one line.
+**Server**: a Script Include extending `AbstractAjaxProcessor`. Pair each public method with a private one, so the public method is one line.
 
 ```js
 var UserLookupAjax = Class.create();
@@ -42,7 +42,7 @@ UserLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 });
 ```
 
-**Client** — call it:
+**Client**: call it.
 
 ```js
 AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId: g_form.getUniqueValue() })
@@ -56,19 +56,19 @@ That's the whole loop. A complete, runnable example is in [`examples/user-lookup
 
 - **No boilerplate.** No `getParameter`, `JSON.parse`, `JSON.stringify`, or per-method `try/catch`. The public method is a single line.
 - **Types survive the wire.** `42` arrives as `42`, not `"42"`. `null` stays `null`, `undefined` stays `undefined`. Raw GlideAjax stringifies everything.
-- **Unit-testable logic.** Private methods take typed args and return typed values — call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
-- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks — your pick, same method.
+- **Unit-testable logic.** Private methods take typed args and return typed values. Call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
+- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method.
 - **Typed errors.** Branch on `error.kind`, never `indexOf` a message string.
-- **Safe by default.** A server bug is logged with a correlation id and anonymized to the client — no stack, table, or sys_id leaks. The console links straight to the log row.
+- **Safe by default.** A server bug is logged with a correlation id and anonymized to the client. No stack, table, or sys_id leaks. The console links straight to the log row.
 - **Collision-proof params.** A parameter named `name`, `order`, or `constructor` can't clobber GlideAjax internals.
 - **Resilient.** Every call has a timeout instead of hanging forever, with opt-in retry for transient failures.
 
-## Before → After
+## Before and after
 
 **Calling from the client**
 
 ```js
-// Before — raw GlideAjax: string params, manual parse, no idea if the answer is data or an error.
+// Before: raw GlideAjax. String params, manual parse, no idea if the answer is data or an error.
 var ga = new GlideAjax('UserLookupAjax');
 ga.addParam('sysparm_name', 'getUserSummary');
 ga.addParam('sysparm_userId', userId);
@@ -79,7 +79,7 @@ ga.getXMLAnswer(function(answer) {
 ```
 
 ```js
-// After — a promise with typed errors.
+// After: a promise with typed errors.
 AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId })
   .then(render)
   .catch(error => showError(error.message));
@@ -88,7 +88,7 @@ AjaxProxy.call('UserLookupAjax', 'getUserSummary', { userId })
 **Handling errors**
 
 ```js
-// Before — brittle string matching on an untyped answer.
+// Before: brittle string matching on an untyped answer.
 ga.getXMLAnswer(function(answer) {
   if (!answer) { /* ACL? typo? timeout? */ }
   var data = JSON.parse(answer);
@@ -97,10 +97,10 @@ ga.getXMLAnswer(function(answer) {
 ```
 
 ```js
-// After — branch on a field.
+// After: branch on a field.
 .catch(error => {
   if (error.kind === AjaxProxy.ErrorKind.BUSINESS) showUser(error.message);
-  else logBug(error.reference); // server bug → deep-links to the log row
+  else logBug(error.reference); // server bug: deep-links to the log row
 });
 ```
 
@@ -108,19 +108,19 @@ ga.getXMLAnswer(function(answer) {
 
 Each is independent and none complicates the basic `call`.
 
-- **Promise or callbacks, same method** — pass `{ onSuccess, onError, onComplete }` instead of chaining when it reads better.
-- **`AjaxProxy.for(name, defaults)`** — bind a script include and shared options once: `const users = AjaxProxy.for('UserLookupAjax'); users('getUserSummary', { userId })`.
-- **`AjaxProxy.channel(name, method, { debounce, latest })`** — type-ahead without race conditions; only the latest result lands.
-- **`AjaxProxy.setErrorHandler(fn)`** — route every unhandled failure through your own sink (toast, banner, telemetry).
-- **Opt-in retry** — `retry: true` (once on timeout), a number, or `{ attempts, delay, on }`. Off by default; only enable it for idempotent (read) methods.
-- **Console-to-log deep links** — a server bug prints a link straight to its log row; `AjaxProxy.setLogTable('syslog_app_scope')` for scoped apps.
+- **Promise or callbacks, same method.** Pass `{ onSuccess, onError, onComplete }` instead of chaining when it reads better.
+- **`AjaxProxy.for(name, defaults)`.** Bind a script include and shared options once: `const users = AjaxProxy.for('UserLookupAjax'); users('getUserSummary', { userId })`.
+- **`AjaxProxy.channel(name, method, { debounce, latest })`.** Type-ahead without race conditions. Only the latest result lands.
+- **`AjaxProxy.setErrorHandler(fn)`.** Route every unhandled failure through your own sink (toast, banner, telemetry).
+- **Opt-in retry.** `retry: true` (once on timeout), a number, or `{ attempts, delay, on }`. Off by default, and only worth enabling for idempotent (read) methods.
+- **Console-to-log deep links.** A server bug prints a link straight to its log row. Use `AjaxProxy.setLogTable('syslog_app_scope')` for scoped apps.
 
 ## `error.kind`
 
 | `kind` | When | What to do |
 | --- | --- | --- |
-| `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message` — it's authored and safe. |
-| `server` | An unexpected server bug | Show a generic message; `error.reference` deep-links to the log. |
+| `business` | `AjaxAdapter.fail(...)` on the server | Show `error.message`, it's authored and safe. |
+| `server` | An unexpected server bug | Show a generic message. `error.reference` deep-links to the log. |
 | `badRequest` | Params weren't serializable / payload wasn't valid JSON | Fix the caller. |
 | `timeout` | No answer in time | Safe to retry manually, or opt into `retry` for reads. |
 | `empty` | Empty answer | Check `client_callable`, ACLs, the method name, or the session. |
@@ -133,21 +133,21 @@ Each is independent and none complicates the basic `call`.
 Two ways for a private method to fail:
 
 ```js
-// Expected failure the caller must handle → kind 'business'. Message shown, NOT logged.
+// Expected failure the caller must handle: kind 'business'. Message shown, NOT logged.
 throw AjaxAdapter.fail('This user has no manager assigned');
 
-// Contract violation / bug → kind 'server'. Logged with a correlation id, anonymized to the client.
+// Contract violation / bug: kind 'server'. Logged with a correlation id, anonymized to the client.
 throw new Error('userId is required');
 ```
 
-Returning normally sends the value as the result. Because the private methods never touch `this.request`, the whole class is reusable server-side — `new UserLookupAjax()._getUserSummary(id)` works in a Business Rule or scheduled job too.
+Returning normally sends the value as the result. Because the private methods never touch `this.request`, the whole class is reusable server-side. `new UserLookupAjax()._getUserSummary(id)` works in a Business Rule or scheduled job too.
 
 ## Repo layout
 
 ```
-src/       AjaxAdapter (server) + AjaxProxy (client) — the two files you install
-examples/  UserLookupAjax — a complete endpoint showing every pattern
-docs/      ajax-adapter.mdx — the full, styled documentation
+src/       AjaxAdapter (server) + AjaxProxy (client), the two files you install
+examples/  UserLookupAjax, a complete endpoint showing every pattern
+docs/      ajax-adapter.mdx, the full, styled documentation
 ```
 
 ## License

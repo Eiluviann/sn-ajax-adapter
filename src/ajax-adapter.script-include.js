@@ -1,49 +1,8 @@
 /**
- * AjaxAdapter — factory that adapts a private method to the GlideAjax calling convention.
+ * AjaxAdapter: factory that adapts a private method to the GlideAjax calling convention.
+ * Client-side counterpart: AjaxProxy.
  *
- * Script Include settings:
- *   Name:            AjaxAdapter
- *   Client callable: false  (server-side plumbing, never called from the client)
- *   Accessible from: All application scopes (if you reuse it from scoped apps)
- *
- * This is the Adapter pattern: every public method on a client-callable script
- * include is the same mechanical boilerplate — read the request, coerce Java
- * strings to JS strings, call the private implementation, wrap the outcome in a
- * stringified envelope. AjaxAdapter.expose() generates that adapter so a public
- * method is a single declarative line. Its client-side counterpart is AjaxProxy.
- *
- * Wire format — one JSON payload, always:
- *   AjaxProxy sends ALL parameters as one JSON object under a single carrier param
- *   (AjaxAdapter.PAYLOAD_PARAM). Because the whole object is JSON, every value keeps its
- *   type — a number stays a number, a string stays a quoted string — so a value never
- *   arrives as the wrong type (42 vs '42'). Collisions are impossible: every developer
- *   parameter is a KEY inside the payload object rather than its own request param, so a
- *   parameter named 'name', 'processor', or 'scope' can never clobber GlideAjax's own
- *   dispatch params (sysparm_name, sysparm_processor). Rebrand PAYLOAD_PARAM per app if
- *   you like; the only rule is that AjaxProxy must send the same name.
- *
- * Without the wrapper: there is no per-parameter fallback and none is needed — a caller
- *   that can't use AjaxProxy builds the same payload object, stringifies it, and sends it
- *   the same way:  ga.addParam('sysparm_payload', JSON.stringify({ userId: id })).
- *   Stringifying is the caller's responsibility; a payload that is not valid JSON, or is
- *   not a JSON object, is rejected with kind 'badRequest'.
- *
- * Answer envelope (always a JSON string, discriminated on `ok`):
- *   { ok: true,  result: <return value of the private method> }
- *   { ok: false, error: { kind, message, reference?, details? } }
- *
- * Two-tier errors (matches the throw-vs-Result boundary):
- *   - A private method that THROWS a plain Error is treated as an unexpected bug: the
- *     full detail is logged server-side under a correlation id (gs.generateGUID) and
- *     the client receives only { kind: 'server', message: 'Unexpected server error',
- *     reference }. No internal detail leaks; you grep the log by the reference.
- *   - A private method that signals an EXPECTED failure via AjaxAdapter.fail(msg) — by
- *     throwing or returning it — is passed through verbatim as { kind: 'business',
- *     message } and is NOT logged as an error. The message is developer-authored, so
- *     it is safe to show. Give fail() a { kind } to use your own discriminator.
- *
- * undefined round-trips as undefined: an absent payload key (or a private method that
- *   returns undefined) arrives as undefined on the client; null is preserved as null.
+ * Full documentation, install steps, and design notes: docs/ajax-adapter.mdx and README.md.
  */
 var AjaxAdapter = Class.create();
 
@@ -83,7 +42,7 @@ AjaxAdapter.expose = function(privateMethodName, parameterNames) {
 				return AjaxAdapter.failureEnvelope(value);
 			}
 			// Faithful round-trip: undefined omits `result` (JSON.stringify drops it) and
-			// the client reads it back as undefined; null is preserved. No undefined→null.
+			// the client reads it back as undefined. null is preserved. No undefined-to-null.
 			return JSON.stringify({ ok: true, result: value });
 		} catch (error) {
 			if (AjaxAdapter.isFailure(error)) {
@@ -93,8 +52,8 @@ AjaxAdapter.expose = function(privateMethodName, parameterNames) {
 			var message = error && error.message ? String(error.message) : String(error);
 			var stack = error && error.stack ? '\n' + String(error.stack) : '';
 			// Reference FIRST so the client's ref id finds this row instantly via
-			// syslog.message STARTSWITH <ref>; the [AjaxAdapter] tag supports a LIKE sweep. The private
-			// method name stays in the log only — it never crosses to the client on the anonymized path.
+			// syslog.message STARTSWITH <ref>. The [AjaxAdapter] tag supports a LIKE sweep. The private
+			// method name stays in the log only, it never crosses to the client on the anonymized path.
 			gs.error(reference + ' [AjaxAdapter] ' + processor.type + '.' + privateMethodName + ': ' + message + stack);
 			return JSON.stringify({
 				ok: false,
@@ -112,11 +71,11 @@ AjaxAdapter.expose = function(privateMethodName, parameterNames) {
  * Signals an EXPECTED, user-facing failure from inside a private method.
  * Throw it (or return it) to reject the client call with a safe, unlogged message.
  *
- * Throwing reads best as a guard clause; returning suits a Result-style method. Either way the
+ * Throwing reads best as a guard clause, and returning suits a Result-style method. Either way the
  * adapter recognizes the marker and converts it to a business envelope.
  *
  * @param {string} message - Developer-authored message, safe to show to the caller.
- * @param {{ kind?: string, details?: * }} [options] - kind overrides the 'business' discriminator; details is
+ * @param {{ kind?: string, details?: * }} [options] - kind overrides the 'business' discriminator. details is
  *   serialized into the client envelope, so keep it free of anything the caller shouldn't see.
  * @returns {Error} A marked failure the adapter converts to an { ok: false } envelope.
  */
@@ -138,14 +97,14 @@ AjaxAdapter.prototype = {
  * Reads the positional arguments for a private method from the request.
  *
  * Every parameter arrives inside one JSON object under PAYLOAD_PARAM. getParameter()
- * returns a Java string under the Rhino engine; `new String()` moves it to the JS side
+ * returns a Java string under the Rhino engine. `new String()` moves it to the JS side
  * and the outer String() collapses the String *object* wrapper into a primitive before
- * JSON.parse. Values that come back out of JSON.parse are already JS primitives — a
- * number is a number, not '42' — and need no further wrapping.
+ * JSON.parse. Values that come back out of JSON.parse are already JS primitives. A
+ * number is a number, not '42', and needs no further wrapping.
  *
  * @param {*} processor - The AbstractAjaxProcessor instance handling the request.
  * @param {string[]} parameterNames - Payload keys in positional order.
- * @returns {Array<*>} Parsed arguments; an omitted key (or no payload at all) is undefined.
+ * @returns {Array<*>} Parsed arguments. An omitted key (or no payload at all) is undefined.
  * @throws {Error} Via AjaxAdapter.fail (kind 'badRequest') when the payload is present but not a JSON object.
  */
 AjaxAdapter.readArguments = function(processor, parameterNames) {
@@ -180,7 +139,7 @@ AjaxAdapter.readArguments = function(processor, parameterNames) {
 
 /**
  * Detects an AjaxAdapter.fail marker. Uses a named boolean flag rather than instanceof because a
- * failure created in one script-include scope must still be recognized here — instanceof is
+ * failure created in one script-include scope must still be recognized here. instanceof is
  * unreliable across ServiceNow scope boundaries, a plain flag is not.
  *
  * @param {*} candidate
@@ -192,7 +151,7 @@ AjaxAdapter.isFailure = function(candidate) {
 
 /**
  * Serializes a marked failure into an { ok: false } envelope. undefined fields (e.g. details) drop
- * out. No method name is emitted — the client already knows the public method it called.
+ * out. No method name is emitted. The client already knows the public method it called.
  *
  * @param {Error} failure - An AjaxAdapter.fail value.
  * @returns {string}
