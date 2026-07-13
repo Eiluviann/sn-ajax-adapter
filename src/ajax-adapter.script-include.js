@@ -6,10 +6,7 @@
  */
 var AjaxAdapter = Class.create();
 
-/**
- * Semver of this file. Bump on every change (see the repo's CHANGELOG.md) so a
- * developer can tell which version is installed on an instance: `AjaxAdapter.VERSION`.
- */
+/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
 AjaxAdapter.VERSION = '1.0.0';
 
 /**
