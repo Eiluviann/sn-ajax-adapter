@@ -140,7 +140,9 @@ throw AjaxAdapter.fail('This user has no manager assigned');
 throw new Error('userId is required');
 ```
 
-Returning normally sends the value as the result. Because the private methods never touch `this.request`, the whole class is reusable server-side. `new UserLookupAjax()._getUserSummary(id)` works in a Business Rule or scheduled job too.
+Returning normally sends the value as the result. **Return plain JS values.** Coerce Glide values at the boundary — `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` — because `JSON.stringify` on a Java object (a `GlideElement`, a `GlideDateTime`) can silently serialize as `{}` under Rhino instead of throwing. (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity.)
+
+Because the private methods never touch `this.request`, the whole class is reusable server-side. `new UserLookupAjax()._getUserSummary(id)` works in a Business Rule or scheduled job too.
 
 ## Repo layout
 
@@ -148,6 +150,7 @@ Returning normally sends the value as the result. Because the private methods ne
 src/       AjaxAdapter (server) + AjaxProxy (client), the two files you install
 examples/  UserLookupAjax, a complete endpoint showing every pattern
 docs/      ajax-adapter.mdx, the full, styled documentation
+tests/     Vitest suite for both files (npm install && npm test), no instance needed
 ```
 
 ## Version

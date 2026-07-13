@@ -345,6 +345,8 @@ throw new Error('userId is required');
 
 Returning normally sends the value as the result. Absence that's a normal branch is a value too (`return { found: false }`), and the client resolves with it. Reserve `fail()` for failures the caller must act on, and plain `throw` for "this should never happen."
 
+**Return plain JS values.** Coerce Glide values at the boundary — `String(gr.getValue('name'))`, `Number(ga.getAggregate('COUNT'))` — because `JSON.stringify` on a Java object (a `GlideElement`, a `GlideDateTime`) can silently serialize as `{}` under Rhino instead of throwing. (`gr.getValue('name') + ''` coerces the same way if you want the shorthand; the examples in this repo spell out `String(...)` for clarity.)
+
 ### How it works
 
 - **Wire format.** All parameters ride as one JSON object under `sysparm_payload`. Because the whole object is JSON, every value keeps its type, and a parameter named like a GlideAjax internal (`name`, `processor`) is just a key, so it can't collide. Only `sysparm_name` (the method) and `sysparm_processor` (the script include) are reserved by GlideAjax.

@@ -7,7 +7,7 @@
 var AjaxAdapter = Class.create();
 
 /** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
-AjaxAdapter.VERSION = '1.0.0';
+AjaxAdapter.VERSION = '1.0.1';
 
 /**
  * Single carrier param for the JSON argument payload. Must match AjaxProxy. GlideAjax only
@@ -81,8 +81,14 @@ AjaxAdapter.expose = function(privateMethodName, parameterNames) {
  * @param {{ kind?: string, details?: * }} [options] - kind overrides the 'business' discriminator. details is
  *   serialized into the client envelope, so keep it free of anything the caller shouldn't see.
  * @returns {Error} A marked failure the adapter converts to an { ok: false } envelope.
+ * @throws {Error} When message is not a non-empty string (developer bug). Thrown from inside a
+ *   private method, the adapter logs it and anonymizes it to a 'server' envelope, so the misuse
+ *   surfaces in the log instead of shipping a blank message to the user.
  */
 AjaxAdapter.fail = function(message, options) {
+	if (typeof message !== 'string' || message === '') {
+		throw new Error('AjaxAdapter.fail requires a non-empty message string');
+	}
 	var failure = new Error(message);
 	failure.isAjaxBusinessFailure = true;
 	failure.kind = options && options.kind ? String(options.kind) : 'business';
@@ -130,7 +136,9 @@ AjaxAdapter.readArguments = function(processor, parameterNames) {
 	} catch (parseError) {
 		throw AjaxAdapter.fail(AjaxAdapter.PAYLOAD_PARAM + ' is not valid JSON: ' + parseError.message, { kind: 'badRequest' });
 	}
-	if (payload === null || typeof payload !== 'object') {
+	// Array.isArray: an array is typeof 'object' too, but its "arguments" would all silently
+	// resolve to undefined. Reject it as the contract violation it is.
+	if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
 		throw AjaxAdapter.fail(AjaxAdapter.PAYLOAD_PARAM + ' must be a JSON object', { kind: 'badRequest' });
 	}
 	return names.map(function(name) {

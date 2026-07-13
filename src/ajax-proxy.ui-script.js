@@ -7,7 +7,7 @@
 var AjaxProxy = (function() {
 
 	/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
-	var VERSION = '1.0.0';
+	var VERSION = '1.0.1';
 
 	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
 	var PAYLOAD_PARAM = 'sysparm_payload';
@@ -76,8 +76,9 @@ var AjaxProxy = (function() {
 
 		// Callback style: drive the handlers on an internal branch. The error sink is the per-call
 		// onError when provided, otherwise the global handler, so a failure is never silently
-		// swallowed. When onError IS provided the global handler never runs. A throw inside a user
-		// callback is caught and logged (its own bug surfacing), never lost. onComplete always runs.
+		// swallowed. When onError IS provided the global handler never runs. A throw inside ANY user
+		// callback (onSuccess, onError, onComplete, even the global handler itself) is routed
+		// through reportCallbackError, so the chain can never reject and onComplete always runs.
 		var errorSink = typeof opts.onError === 'function' ? opts.onError : globalErrorHandler;
 		promise
 			.then(
@@ -91,11 +92,16 @@ var AjaxProxy = (function() {
 				},
 			)
 			.catch(function(callbackError) {
-				globalErrorHandler(callbackError);
+				reportCallbackError(callbackError);
 			})
 			.then(function() {
-				if (typeof opts.onComplete === 'function') {
+				if (typeof opts.onComplete !== 'function') {
+					return;
+				}
+				try {
 					opts.onComplete();
+				} catch (completeError) {
+					reportCallbackError(completeError);
 				}
 			});
 
@@ -314,7 +320,7 @@ var AjaxProxy = (function() {
 				var serverError = envelope.error || {};
 				settle(reject, ajaxError(serverError.kind || ErrorKind.SERVER, serverError.message || 'unknown server error', {
 					scriptInclude: scriptIncludeName,
-					method: serverError.method || publicMethodName,
+					method: publicMethodName,
 					reference: serverError.reference,
 					details: serverError.details,
 				}));
@@ -432,6 +438,22 @@ var AjaxProxy = (function() {
 			error.details = info.details;
 		}
 		return error;
+	}
+
+	/**
+	 * Routes a throw from a user callback to the global handler. The handler is the last resort:
+	 * if IT throws too, the error is deliberately swallowed. Rethrowing would reject the internal
+	 * callback chain, which both leaks an unhandled rejection and skips the onComplete stage,
+	 * breaking the "onComplete always runs" guarantee.
+	 *
+	 * @param {*} callbackError - Whatever the user callback threw.
+	 */
+	function reportCallbackError(callbackError) {
+		try {
+			globalErrorHandler(callbackError);
+		} catch (handlerError) {
+			// Intentionally swallowed: there is nowhere safer left to report it.
+		}
 	}
 
 	/**
