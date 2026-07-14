@@ -5,11 +5,11 @@
  * lands, so fast typing never renders out-of-order results (like RxJS switchMap). Bind
  * c.onQueryChange to ng-change on the input and render c.results.
  *
- * Same digest note as widget.client-script.js: wrap the state update in $timeout.
+ * The result assignment re-renders directly — AjaxProxy 1.2.0 schedules the digest for you.
  *
  * Pairs with InventoryAjax.searchItems.
  */
-api.controller = function ($scope, $timeout) {
+api.controller = function ($scope) {
 	var c = this;
 	c.query = '';
 	c.results = [];
@@ -23,9 +23,7 @@ api.controller = function ($scope, $timeout) {
 			return;
 		}
 		search({ query: c.query }).then(function (items) {
-			$timeout(function () {
-				c.results = items;
-			});
+			c.results = items;
 		});
 	};
 };

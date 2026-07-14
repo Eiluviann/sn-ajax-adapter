@@ -78,7 +78,7 @@ That's the whole loop. A complete, runnable example is in [`examples/user-lookup
 - **Dates survive too.** A JS `Date` parameter arrives server-side as a real `GlideDateTime`; a returned `GlideDateTime` resolves client-side as a `Date`. Always the UTC instant, never a timezone-shifted string.
 - **Declared parameter contracts.** `{ name, type, required, default }` at the boundary. Violations reject as `badRequest` with every problem listed at once, and your private method never runs — so it needs no guard clauses.
 - **Unit-testable logic.** Private methods take typed args and return typed values. Call `new UserLookupAjax()._getUserSummary(id)` directly in ATF or any harness. No transport to mock.
-- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method.
+- **Real promises.** `.then` / `.catch` / `.finally`, `async/await`, or callbacks, your pick, same method. In Service Portal, a settled call schedules an Angular digest for you, so `.then` state changes re-render without a `$timeout` (toggle with `AjaxProxy.setDigestIntegration(false)`).
 - **Typed errors.** Branch on `error.kind`, never `indexOf` a message string.
 - **Safe by default.** A server bug is logged with a correlation id and anonymized to the client. No stack, table, or sys_id leaks. The console links straight to the log row.
 - **Collision-proof params.** A parameter named `name`, `order`, or `constructor` can't clobber GlideAjax internals.

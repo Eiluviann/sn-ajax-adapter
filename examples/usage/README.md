@@ -30,17 +30,16 @@ call it from a widget, a catalog item, a classic form, or a button.
 values, so they test directly with a fake `GlideRecord` — no GlideAjax to mock. See
 [`tests/inventory-ajax.test.ts`](../../tests/inventory-ajax.test.ts) (`npm test`).
 
-## The one gotcha — widgets
+## Widgets — the digest is handled for you (1.2.0+)
 
-`AjaxProxy` returns a **native** promise, and AngularJS doesn't run a digest when one resolves.
-In a widget, wrap the state change in `$timeout` (or `$scope.$apply`) so the view re-renders:
+`AjaxProxy` returns a **native** promise, and AngularJS doesn't run a digest when a native promise
+resolves — so historically a widget had to wrap the state change in `$timeout` / `$scope.$apply`.
+As of **1.2.0**, AjaxProxy schedules the digest itself after each call settles, so this just works:
 
 ```js
 AjaxProxy.call('InventoryAjax', 'getItemStock', { itemId: id })
-  .then(function (result) {
-    $timeout(function () { c.stock = result; }); // re-enter Angular
-  });
+  .then(function (result) { c.stock = result; }); // view re-renders — no $timeout
 ```
 
-Everywhere else (`g_form`-based catalog/classic scripts, UI Actions) there's no digest to worry
-about — just `.then` / `.catch` or the callback handlers.
+Turn it off with `AjaxProxy.setDigestIntegration(false)` if you drive digests yourself. Outside
+Service Portal (`g_form`-based catalog/classic scripts, UI Actions) there's no digest in play anyway.

@@ -8,6 +8,21 @@ ship the same version number, exposed at runtime as `AjaxAdapter.VERSION`
 and `AjaxProxy.VERSION`. Bump both together on every change so a developer
 can tell which version is installed on an instance by checking either one.
 
+## [1.2.0] - 2026-07-14
+
+Client-only change — the wire format is unchanged, so a 1.2.0 `AjaxProxy` talks
+to a 1.1.0 `AjaxAdapter` and vice versa. Bump both to keep the version check quiet.
+
+### Added
+
+- **Service Portal digest integration.** In an AngularJS page, a settled call now
+  schedules a digest (`$rootScope.$applyAsync`), so state set in a `.then` / `.catch`
+  (or callback) handler re-renders the view without a manual `$timeout` /
+  `$scope.$apply`. The returned value is still a native promise — `async`/`await`,
+  `.finally`, and unhandled-rejection warnings are unchanged. Auto-detected in
+  Service Portal, a no-op in the classic UI, and switchable with
+  `AjaxProxy.setDigestIntegration(false)`.
+
 ## [1.1.0] - 2026-07-13
 
 The wire format grew in this release (date tags, version param) — install the

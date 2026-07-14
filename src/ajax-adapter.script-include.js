@@ -7,7 +7,7 @@
 var AjaxAdapter = Class.create();
 
 /** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
-AjaxAdapter.VERSION = '1.1.0';
+AjaxAdapter.VERSION = '1.2.0';
 
 /**
  * Single carrier param for the JSON argument payload. Must match AjaxProxy. GlideAjax only

@@ -7,7 +7,7 @@
 var AjaxProxy = (function() {
 
 	/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
-	var VERSION = '1.1.0';
+	var VERSION = '1.2.0';
 
 	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
 	var PAYLOAD_PARAM = 'sysparm_payload';
@@ -38,6 +38,16 @@ var AjaxProxy = (function() {
 
 	/** @type {string} Table the correlation reference deep-links into. Set 'syslog_app_scope' for a scoped adapter. */
 	var logTable = 'syslog';
+
+	/**
+	 * @type {boolean} When true (default) and running in a Service Portal (AngularJS) page, a
+	 * settled call schedules a digest, so state set in a .then/.catch handler updates the view
+	 * without a manual $timeout / $scope.$apply. No-op outside Angular. Toggle with setDigestIntegration.
+	 */
+	var digestIntegration = true;
+
+	/** @type {*} The running app's $rootScope, resolved lazily on first settle and cached once found. */
+	var angularRootScope;
 
 	/** @type {function(Error): void} Global fallback error handler. Replace via setErrorHandler. */
 	var globalErrorHandler = function(error) {
@@ -248,6 +258,18 @@ var AjaxProxy = (function() {
 	}
 
 	/**
+	 * Enables/disables the Service Portal digest integration (on by default). When on, a settled
+	 * call schedules an AngularJS digest so a .then/.catch (or callback) handler that sets scope
+	 * or controller state re-renders the view without a manual $timeout / $scope.$apply. Turn it
+	 * off if you drive digests yourself or aren't on Service Portal.
+	 *
+	 * @param {boolean} enabled - Anything but an explicit false enables it.
+	 */
+	function setDigestIntegration(enabled) {
+		digestIntegration = enabled !== false;
+	}
+
+	/**
 	 * Fires the GlideAjax transport and resolves/rejects with the unwrapped envelope.
 	 * A single settle guard makes the timeout and the answer callback mutually exclusive.
 	 *
@@ -273,6 +295,7 @@ var AjaxProxy = (function() {
 					scriptInclude: scriptIncludeName,
 					method: publicMethodName,
 				}));
+				scheduleDigest();
 				return;
 			}
 
@@ -287,6 +310,9 @@ var AjaxProxy = (function() {
 					clearTimeout(timer);
 				}
 				action(argument);
+				// Nudge Angular (Service Portal) so a .then/.catch handler's state change renders.
+				// $applyAsync runs after the promise microtasks, so it sees whatever they set.
+				scheduleDigest();
 			}
 
 			// Build the transport first, then arm the timer: if the constructor ever throws, no
@@ -543,6 +569,53 @@ var AjaxProxy = (function() {
 		};
 	}
 
+	/**
+	 * In a Service Portal (AngularJS) page, schedules a digest so state set in a settled call's
+	 * handler is reflected in the view. $applyAsync coalesces and is safe even if a digest is
+	 * already running, and it runs after the promise microtasks so it sees their writes. No-op
+	 * outside Angular or when disabled.
+	 */
+	function scheduleDigest() {
+		if (!digestIntegration) {
+			return;
+		}
+		var rootScope = getAngularRootScope();
+		if (rootScope) {
+			rootScope.$applyAsync();
+		}
+	}
+
+	/**
+	 * Resolves the running AngularJS app's $rootScope from the page and caches it once found.
+	 * Retries on later calls if the app wasn't bootstrapped yet. Returns undefined outside Angular
+	 * (classic UI, a test harness), which makes scheduleDigest a safe no-op there.
+	 *
+	 * @returns {*} The app $rootScope, or undefined.
+	 */
+	function getAngularRootScope() {
+		if (angularRootScope) {
+			return angularRootScope;
+		}
+		try {
+			if (typeof angular === 'undefined' || !angular.element || typeof document === 'undefined') {
+				return undefined;
+			}
+			var anchors = [document.body, document.documentElement, document.querySelector('.ng-scope')];
+			for (var i = 0; i < anchors.length && !angularRootScope; i++) {
+				if (!anchors[i]) {
+					continue;
+				}
+				var injector = angular.element(anchors[i]).injector();
+				if (injector && injector.has && injector.has('$rootScope')) {
+					angularRootScope = injector.get('$rootScope');
+				}
+			}
+		} catch (error) {
+			// Leave unresolved and try again on the next call.
+		}
+		return angularRootScope;
+	}
+
 	return {
 		VERSION: VERSION,
 		call: call,
@@ -551,6 +624,7 @@ var AjaxProxy = (function() {
 		setErrorHandler: setErrorHandler,
 		setDefaultTimeout: setDefaultTimeout,
 		setLogTable: setLogTable,
+		setDigestIntegration: setDigestIntegration,
 		logUrl: logUrl,
 		ErrorKind: ErrorKind,
 	};
