@@ -20,7 +20,7 @@ Write a typed, unit-testable method on the server. Call it from the browser like
 Two platform records, created one time:
 
 - **`AjaxAdapter`**: a Script Include (**Client callable: off**). Paste `ajax-adapter.script-include.js`.
-- **`AjaxProxy`**: a UI Script (**Global: on** for classic UI, or paste into your Service Portal widget). Paste `ajax-proxy.ui-script.js`.
+- **`AjaxProxy`**: a UI Script (**Global: on**, **UI Type: Desktop** — not "All"). Paste `ajax-proxy.ui-script.js`. For Service Portal loading, see [Install](#install).
 
 ### 2. Write an endpoint (server)
 
@@ -303,9 +303,11 @@ Everything above in full. Read top-to-bottom or jump to what you need.
 | Record | Type | Setting | Source |
 | --- | --- | --- | --- |
 | `AjaxAdapter` | Script Include | Client callable **off** | `ajax-adapter.script-include.js` |
-| `AjaxProxy` | UI Script | Global **on** (classic UI) | `ajax-proxy.ui-script.js` |
+| `AjaxProxy` | UI Script | **Global: on**, **UI Type: Desktop** (not "All") | `ajax-proxy.ui-script.js` |
 
-In Service Portal, load `AjaxProxy` as a widget dependency or paste it into the widget's client script. `AjaxAdapter` must be reachable from your endpoint's scope (**Accessible from: All application scopes** if you share it).
+**Service Portal.** The Global flag is a classic-UI loader; load `AjaxProxy` on a portal explicitly — either **portal-wide** by adding it as a **JS Include** (Source = UI Script → `AjaxProxy`) to your portal **Theme**, or **per widget** by adding that JS Include to a **Dependency** on the specific widgets that need it. `AjaxAdapter` must be reachable from your endpoint's scope (**Accessible from: All application scopes** if you share it).
+
+> **UI Type must be `Desktop`, not `All`.** The global UI-Script auto-loader only emits `Desktop`-typed scripts; `All` (or `Mobile`) removes it from that bucket, so it silently stops loading in **both** the classic UI and Service Portal — even a top-level `console.log` won't fire. Keep `Global: on` + `UI Type: Desktop`.
 
 ### `AjaxProxy.call(scriptInclude, method, params, options?)`
 

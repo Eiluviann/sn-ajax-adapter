@@ -14,9 +14,14 @@ Two platform records, created one time:
 | Record | Type | Setting | Source |
 | --- | --- | --- | --- |
 | `AjaxAdapter` | Script Include | Client callable **off**. Accessible from **all application scopes** if shared | [`src/ajax-adapter.script-include.js`](src/ajax-adapter.script-include.js) |
-| `AjaxProxy` | UI Script | Global **on** (classic UI) | [`src/ajax-proxy.ui-script.js`](src/ajax-proxy.ui-script.js) |
+| `AjaxProxy` | UI Script | **Global: on**, **UI Type: Desktop** (not "All" — see the warning below) | [`src/ajax-proxy.ui-script.js`](src/ajax-proxy.ui-script.js) |
 
-In Service Portal, load `AjaxProxy` as a widget dependency or paste it into the widget's client script.
+**Service Portal.** The UI Script's Global flag is a classic-UI loader; a portal won't pick it up from that alone. Load `AjaxProxy` on the portal one of two ways:
+
+- **Whole portal:** create a **JS Include** (_Service Portal → JS Includes_, Source = **UI Script** → `AjaxProxy`) and add it to your portal **Theme**'s _JS Includes_ related list. It then loads on every page of that portal.
+- **Specific widgets:** add that JS Include to a **Dependency** and attach the dependency to just the widgets that need it.
+
+> ⚠️ **Keep the UI Script on `UI Type = Desktop`, never `All`.** The platform's global UI-Script auto-loader only emits scripts whose UI Type is `Desktop`. Setting it to `All` (or `Mobile`) drops it from that bucket, so it **silently stops loading in both the classic UI and Service Portal** — a top-level `console.log` won't even fire. `Global: on` + `UI Type: Desktop` is the working combination.
 
 ## Quick start
 
