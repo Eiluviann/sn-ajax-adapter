@@ -26,6 +26,9 @@ InventoryAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 		{ name: 'itemId', type: 'string', required: true },
 		{ name: 'quantity', type: 'number', required: true },
 	]),
+	getItemsAddedSince: AjaxAdapter.expose('_getItemsAddedSince', [
+		{ name: 'since', type: 'date', required: true },
+	]),
 
 	/* Private: typed in, typed out. */
 
@@ -89,6 +92,31 @@ InventoryAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
 		gr.setValue('in_stock', remaining);
 		gr.update();
 		return { reserved: quantity, remaining: remaining };
+	},
+
+	/**
+	 * Date round-trip. The client passes a JS Date, it arrives here as a real GlideDateTime
+	 * (the 'date' contract guarantees it), and the GlideDateTime values this returns come back
+	 * to the client as JS Dates — always the UTC instant, never a timezone-shifted string.
+	 *
+	 * @param {GlideDateTime} since - the moment to count from (client sent a Date).
+	 * @returns {{ count: number, asOf: GlideDateTime, items: Array<{ id: string, name: string, addedOn: GlideDateTime }> }}
+	 */
+	_getItemsAddedSince: function (since) {
+		var items = [];
+		var gr = new GlideRecord('u_inventory_item');
+		gr.addQuery('sys_created_on', '>=', since);
+		gr.orderBy('sys_created_on');
+		gr.setLimit(50);
+		gr.query();
+		while (gr.next()) {
+			items.push({
+				id: gr.getUniqueValue(),
+				name: String(gr.getValue('name')),
+				addedOn: new GlideDateTime(gr.getValue('sys_created_on')),
+			});
+		}
+		return { count: items.length, asOf: new GlideDateTime(), items: items };
 	},
 
 	type: 'InventoryAjax',

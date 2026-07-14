@@ -15,12 +15,20 @@ call it from a widget, a catalog item, a classic form, or a button.
 
 | Context | File | Calls | Shows |
 | --- | --- | --- | --- |
-| Server endpoint | [`inventory-ajax.script-include.js`](inventory-ajax.script-include.js) | — | typed contracts, a value result, and an `AjaxAdapter.fail` business error |
+| Server endpoint | [`inventory-ajax.script-include.js`](inventory-ajax.script-include.js) | — | typed contracts, value results, an `AjaxAdapter.fail` business error, and a date round-trip |
 | SP widget | [`widget.client-script.js`](widget.client-script.js) | `getItemStock` | calling from a widget controller + the AngularJS digest gotcha |
 | SP widget (type-ahead) | [`widget-type-ahead.client-script.js`](widget-type-ahead.client-script.js) | `searchItems` | `AjaxProxy.channel` — debounced, latest-only search |
 | Catalog client script | [`catalog.client-script.js`](catalog.client-script.js) | `getItemStock` | onChange in Service Portal *and* classic, one script |
 | Classic backend form | [`classic-form.client-script.js`](classic-form.client-script.js) | `getItemStock` | callback style (`onSuccess`/`onError`) instead of a promise |
 | UI Action (write) | [`reserve-item.ui-action.js`](reserve-item.ui-action.js) | `reserveItem` | a write + branching on `error.kind` (business vs server) |
+| Plain browser / UI Page | [`browser-plain.js`](browser-plain.js) | `getItemStock` | no `g_form`; `AjaxProxy.for()` to bind a script include + defaults once |
+| Date round-trip | [`date-round-trip.browser.js`](date-round-trip.browser.js) | `getItemsAddedSince` | a JS `Date` in, `Date`s back out (marshalled as `GlideDateTime` server-side) |
+| Server-side reuse | [`server-side-reuse.business-rule.js`](server-side-reuse.business-rule.js) | `_getItemStock` (direct) | the class works off the AJAX path — call the private method from a Business Rule |
+| App config | [`app-init.ui-script.js`](app-init.ui-script.js) | `getItemStock` | `setErrorHandler` / `setDefaultTimeout` / `setLogTable`, and opt-in `retry` |
+
+**Unit-testable, no transport.** The endpoint's private methods take typed args and return typed
+values, so they test directly with a fake `GlideRecord` — no GlideAjax to mock. See
+[`tests/inventory-ajax.test.ts`](../../tests/inventory-ajax.test.ts) (`npm test`).
 
 ## The one gotcha — widgets
 
