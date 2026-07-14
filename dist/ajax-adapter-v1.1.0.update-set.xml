@@ -1,0 +1,1614 @@
+<?xml version="1.0" encoding="UTF-8"?><unload unload_date="2026-07-14 20:38:19">
+<sys_remote_update_set action="INSERT_OR_UPDATE">
+<application display_value="Global">global</application>
+<application_name>Global</application_name>
+<application_scope>global</application_scope>
+<application_version/>
+<collisions/>
+<commit_date/>
+<deleted/>
+<description>AjaxAdapter v1.1.0 - type-safe, boilerplate-free GlideAjax for ServiceNow.
+Server: AjaxAdapter (Script Include). Client: AjaxProxy (UI Script). Plus Service Portal auto-load.
+
+Install:
+  1. Commit this update set.
+  2. Run the Fix Script "AjaxAdapter - link Include to themes" - it links AjaxProxy to every
+     Service Portal theme. Fix Scripts do NOT run automatically on commit.
+
+Guardrails: the AjaxProxy UI Script is kept on Global + UI Type Desktop + Active, and the
+AjaxProxy/AjaxAdapter records are protected from deletion.
+
+Uninstall: set system property ajaxadapter.portal.lock to false to release all guardrails,
+then delete the records.
+
+Docs: github.com/Eiluviann/sn-ajax-adapter</description>
+<inserted/>
+<name>AjaxAdapter v1.1.0</name>
+<origin_sys_id/>
+<parent display_value=""/>
+<release_date/>
+<remote_base_update_set display_value=""/>
+<remote_parent_id/>
+<remote_sys_id>9afb4b82830a4f10f17ccd60ceaad3e7</remote_sys_id>
+<state>loaded</state>
+<summary/>
+<sys_class_name>sys_remote_update_set</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>3e9e9b8a838a4f10f17ccd60ceaad3e1</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<update_set display_value=""/>
+<update_source display_value=""/>
+<updated/>
+</sys_remote_update_set>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_35dd4786830a4f10f17ccd60ceaad320</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;true&lt;/action_delete&gt;&lt;action_insert&gt;false&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;false&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;sp_js_include&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter Portal Autoload.
+Blocks deleting the AjaxProxy JS Include record. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition/&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - protect Include record&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    if (current.getUniqueValue() === new AjaxAdapterPortalUtil().getIncludeId()) {
+        gs.addErrorMessage('AjaxProxy is a required Service Portal dependency and cannot be deleted.');
+        current.setAbortAction(true);
+    }
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:25:03&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;35dd4786830a4f10f17ccd60ceaad320&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - protect Include record&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_35dd4786830a4f10f17ccd60ceaad320&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:16&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;before&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=35dd4786830a4f10f17ccd60ceaad320"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>597760820</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>329e9b8a838a4f10f17ccd60ceaad3e3</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e24b00000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>sp_js_include</table>
+<target_name>AjaxAdapter - protect Include record</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>379b1fc2168a4f1086331ce1bc77fc8f</update_guid>
+<update_guid_history>379b1fc2168a4f1086331ce1bc77fc8f:597760820,38109bca180a4f107420bc2e9d2bbe40:918291792,39dd4786e90a4f10612f1c39c9e25125:-1849023618</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_b1dd4786830a4f10f17ccd60ceaad318</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;true&lt;/action_delete&gt;&lt;action_insert&gt;false&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;false&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;m2m_sp_theme_js_include&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter Portal Autoload.
+Blocks removing the AjaxProxy JS Include from a theme. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition/&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - protect Include on theme&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    var includeId = new AjaxAdapterPortalUtil().getIncludeId();
+    if (includeId &amp;&amp; current.getValue('sp_js_include') === includeId) {
+        gs.addErrorMessage('AjaxProxy is a required Service Portal dependency and cannot be removed from a theme.');
+        current.setAbortAction(true);
+    }
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:25:03&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;b1dd4786830a4f10f17ccd60ceaad318&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - protect Include on theme&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_b1dd4786830a4f10f17ccd60ceaad318&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:16&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;before&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=b1dd4786830a4f10f17ccd60ceaad318"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>1900445377</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>369e9b8a838a4f10f17ccd60ceaad3e4</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e24680000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>m2m_sp_theme_js_include</table>
+<target_name>AjaxAdapter - protect Include on theme</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>b39b1fc2798a4f10268ade6965eec786</update_guid>
+<update_guid_history>b39b1fc2798a4f10268ade6965eec786:1900445377,74109bca820a4f10cf9753fb80f2df37:1892456413,b5dd4786350a4f10539764d01c8e651d:2117240255</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_include_69dd8f46830a4f10f17ccd60ceaad316</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;public&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;global.AjaxAdapterPortalUtil&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description&gt;Helper for AjaxAdapter Portal Autoload.
+Finds/creates the AjaxProxy JS Include and links it to Service Portal themes. Used by the feature Fix Script and Business Rules.&lt;/description&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;AjaxAdapterPortalUtil&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[var AjaxAdapterPortalUtil = Class.create();
+AjaxAdapterPortalUtil.prototype = {
+    initialize: function () {},
+
+    UI_SCRIPT_NAME: 'AjaxProxy',
+    INCLUDE_DISPLAY_NAME: 'AjaxAdapter - AjaxProxy',
+    INCLUDE_TABLE: 'sp_js_include',
+    LINK_TABLE: 'm2m_sp_theme_js_include',
+
+    getIncludeId: function () {
+        var uiScriptId = this._getUiScriptId();
+        if (!uiScriptId) return '';
+        var inc = new GlideRecord(this.INCLUDE_TABLE);
+        inc.addQuery('sys_ui_script', uiScriptId);
+        inc.setLimit(1);
+        inc.query();
+        return inc.next() ? inc.getUniqueValue() : '';
+    },
+
+    ensureInclude: function () {
+        var existing = this.getIncludeId();
+        if (existing) return existing;
+        var uiScriptId = this._getUiScriptId();
+        if (!uiScriptId) return '';
+        var inc = new GlideRecord(this.INCLUDE_TABLE);
+        inc.initialize();
+        inc.setValue('display_name', this.INCLUDE_DISPLAY_NAME);
+        inc.setValue('sys_ui_script', uiScriptId);
+        return inc.insert();
+    },
+
+    hasThemeLink: function (themeId, includeId) {
+        var incId = includeId || this.getIncludeId();
+        if (!incId || !themeId) return false;
+        var m = new GlideRecord(this.LINK_TABLE);
+        m.addQuery('sp_theme', themeId);
+        m.addQuery('sp_js_include', incId);
+        m.setLimit(1);
+        m.query();
+        return m.hasNext();
+    },
+
+    ensureThemeLink: function (themeId) {
+        var includeId = this.getIncludeId();
+        if (!includeId || !themeId || this.hasThemeLink(themeId, includeId)) return false;
+        var link = new GlideRecord(this.LINK_TABLE);
+        link.initialize();
+        link.setValue('sp_theme', themeId);
+        link.setValue('sp_js_include', includeId);
+        link.insert();
+        return true;
+    },
+
+    _getUiScriptId: function () {
+        var s = new GlideRecord('sys_ui_script');
+        return s.get('name', this.UI_SCRIPT_NAME) ? s.getUniqueValue() : '';
+    },
+
+    type: 'AjaxAdapterPortalUtil',
+};]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:25:02&lt;/sys_created_on&gt;&lt;sys_id&gt;69dd8f46830a4f10f17ccd60ceaad316&lt;/sys_id&gt;&lt;sys_mod_count&gt;1&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapterPortalUtil&lt;/sys_name&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_69dd8f46830a4f10f17ccd60ceaad316&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 19:34:48&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-1948245238</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>3a9e9b8a838a4f10f17ccd60ceaad3e5</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f621ff46a0000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxAdapterPortalUtil</target_name>
+<type>Script Include</type>
+<update_domain>global</update_domain>
+<update_guid>b0109bca1f0a4f1045acf99b2e14da0c</update_guid>
+<update_guid_history>b0109bca1f0a4f1045acf99b2e14da0c:-1948245238,71dd8f46190a4f1062407c646f6eb01b:-679148467</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sp_js_include_4505df46834a4f10f17ccd60ceaad34c</name>
+<payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_js_include"><sp_js_include action="INSERT_OR_UPDATE"><display_name>AjaxAdapter - AjaxProxy</display_name><source>local</source><sys_class_name>sp_js_include</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2026-07-14 19:56:24</sys_created_on><sys_id>4505df46834a4f10f17ccd60ceaad34c</sys_id><sys_mod_count>0</sys_mod_count><sys_name>AjaxAdapter - AjaxProxy</sys_name><sys_package display_value="Global" source="global">global</sys_package><sys_policy/><sys_scope display_value="Global">global</sys_scope><sys_ui_script display_value="AjaxProxy">911e4f86830a4f10f17ccd60ceaad368</sys_ui_script><sys_update_name>sp_js_include_4505df46834a4f10f17ccd60ceaad34c</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-07-14 19:56:24</sys_updated_on><url/></sp_js_include></record_update>]]></payload>
+<payload_hash>449785738</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>729e9b8a838a4f10f17ccd60ceaad3e2</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f623fbc4e0000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxAdapter - AjaxProxy</target_name>
+<type>JS Include</type>
+<update_domain>global</update_domain>
+<update_guid>9908d30e9a4a4f10e38e235cad65ac80</update_guid>
+<update_guid_history>9908d30e9a4a4f10e38e235cad65ac80:449785738</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_6f9b1fc2838a4f10f17ccd60ceaad354</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;false&lt;/action_delete&gt;&lt;action_insert&gt;true&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;true&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;sys_ui_script&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter guardrail.
+Keeps the AjaxProxy UI Script on Global=true, UI Type=Desktop, Active=true so it never silently stops loading. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition table="sys_ui_script"&gt;name=AjaxProxy&lt;item endquery="false" field="name" goto="false" newquery="false" operator="=" or="false" value="AjaxProxy"/&gt;&lt;/filter_condition&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - enforce UI Script config&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    var corrected = false;
+    if (current.getValue('global') != '1') { current.setValue('global', true); corrected = true; }
+    if (current.getValue('ui_type') != '0') { current.setValue('ui_type', 0); corrected = true; }
+    if (current.getValue('active') != '1') { current.setValue('active', true); corrected = true; }
+    if (corrected) {
+        gs.addInfoMessage('AjaxProxy must load globally on Desktop for Service Portal; AjaxAdapter reset Global=true, UI Type=Desktop, Active=true.');
+    }
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 20:25:15&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;6f9b1fc2838a4f10f17ccd60ceaad354&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - enforce UI Script config&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_6f9b1fc2838a4f10f17ccd60ceaad354&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:15&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;before&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=6f9b1fc2838a4f10f17ccd60ceaad354"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-956377710</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>769e9b8a838a4f10f17ccd60ceaad3e3</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e22910000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>sys_ui_script</table>
+<target_name>AjaxAdapter - enforce UI Script config</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>ef9b1fc2818a4f1069988473faafec60</update_guid>
+<update_guid_history>ef9b1fc2818a4f1069988473faafec60:-956377710</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_client_d083db82834a4f10f17ccd60ceaad3c5</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script_client"&gt;&lt;sys_script_client action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;applies_extended&gt;false&lt;/applies_extended&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter Portal Autoload.
+Red banner on the AjaxProxy m2m link form: the record cannot be deleted, plus a live count of scripts using AjaxProxy. Exits immediately for every other include.&lt;/description&gt;&lt;field/&gt;&lt;global&gt;true&lt;/global&gt;&lt;isolate_script&gt;true&lt;/isolate_script&gt;&lt;messages/&gt;&lt;name&gt;AjaxAdapter - dependency warning&lt;/name&gt;&lt;order/&gt;&lt;script&gt;&lt;![CDATA[function onLoad() {
+    // A table client script runs on every row; only the AjaxProxy link should do anything.
+    // Cheap client-side check (no server call) - every other include exits here.
+    if (g_form.getDisplayValue('sp_js_include').indexOf('AjaxProxy') === -1) {
+        return;
+    }
+    g_form.addErrorMessage('This record is a required AjaxAdapter dependency and cannot be deleted.');
+    if (typeof AjaxProxy === 'undefined') {
+        return;
+    }
+    AjaxProxy.call('AjaxAdapterUsage', 'getUsage')
+        .then(function (usage) {
+            g_form.addInfoMessage(usage.ajaxProxy + ' client script(s) currently use AjaxProxy (' + usage.glideAjax + ' still on raw GlideAjax).');
+        })
+        .catch(function () {});
+}]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_client&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:49:48&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;d083db82834a4f10f17ccd60ceaad3c5&lt;/sys_id&gt;&lt;sys_mod_count&gt;3&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - dependency warning&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_client_d083db82834a4f10f17ccd60ceaad3c5&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:14:11&lt;/sys_updated_on&gt;&lt;table&gt;m2m_sp_theme_js_include&lt;/table&gt;&lt;type&gt;onLoad&lt;/type&gt;&lt;ui_type&gt;0&lt;/ui_type&gt;&lt;view/&gt;&lt;/sys_script_client&gt;&lt;/record_update&gt;</payload>
+<payload_hash>774546816</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>7a9e9b8a838a4f10f17ccd60ceaad3e4</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f6243ff580000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>m2m_sp_theme_js_include</table>
+<target_name>AjaxAdapter - dependency warning</target_name>
+<type>Client Script</type>
+<update_domain>global</update_domain>
+<update_guid>6d191b8e9a4a4f1011283380b645570e</update_guid>
+<update_guid_history>6d191b8e9a4a4f1011283380b645570e:774546816,2f9757ca4a4a4f100279cad497fe58c6:999107373,be741f06614a4f106798530ba4b262d8:1790098205,e4835f826b4a4f10d1ec4b531c45b340:-401686408</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_include_abbe4f0a830a4f10f17ccd60ceaad30d</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;public&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;global.AjaxAdapter&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description&gt;Server half of AjaxAdapter/AjaxProxy.
+AjaxAdapter.expose() turns a private method into a client-callable GlideAjax endpoint with typed params and JSON envelopes.
+Docs: github.com/Eiluviann/sn-ajax-adapter&lt;/description&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;AjaxAdapter&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[/**
+ * AjaxAdapter: factory that adapts a private method to the GlideAjax calling convention.
+ * Client-side counterpart: AjaxProxy.
+ *
+ * Full documentation, install steps, and design notes: https://github.com/Eiluviann/sn-ajax-adapter
+ */
+var AjaxAdapter = Class.create();
+
+/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
+AjaxAdapter.VERSION = '1.1.0';
+
+/**
+ * Single carrier param for the JSON argument payload. Must match AjaxProxy. GlideAjax only
+ * reserves its own sysparm_name / sysparm_processor, so this name is free to rebrand per app.
+ */
+AjaxAdapter.PAYLOAD_PARAM = 'sysparm_payload';
+
+/**
+ * Single-key wrapper marking a date-time on the wire: { $dateTime: '&lt;ISO 8601 UTC&gt;' }.
+ * Must match AjaxProxy. A client Date arrives as a GlideDateTime, a returned GlideDateTime
+ * (or server Date) arrives as a client Date. Only an object whose SOLE key is this tag is
+ * converted, so ordinary data can't collide by accident.
+ */
+AjaxAdapter.DATETIME_TAG = '$dateTime';
+
+/** Param carrying the client AjaxProxy version, so the server can warn on a mismatched install. */
+AjaxAdapter.VERSION_PARAM = 'sysparm_adapter_version';
+
+/**
+ * Maximum accepted payload length in characters (default 1,000,000). A larger payload is
+ * rejected as badRequest instead of grinding through parse and query time. Raise it per
+ * app by assigning to this property before the first call.
+ */
+AjaxAdapter.MAX_PAYLOAD_LENGTH = 1000000;
+
+/** Types a parameter contract may declare. 'date' matches a revived GlideDateTime. */
+AjaxAdapter.PARAMETER_TYPES = ['string', 'number', 'boolean', 'object', 'array', 'date'];
+
+/**
+ * Creates a public GlideAjax-facing method that delegates to a private method.
+ *
+ * The returned function is assigned directly on the prototype of a script include
+ * extending AbstractAjaxProcessor. When GlideAjax invokes it, `this` is the
+ * processor instance, so getParameter() and the private method are both reachable.
+ *
+ * Invariant: the generated method never throws. Success, an expected AjaxAdapter.fail, and an
+ * unexpected bug all become a JSON envelope string, so GlideAjax always hands the client a
+ * well-formed answer and getXMLAnswer never has to cope with a raw exception.
+ *
+ * @param {string} privateMethodName - Name of the private method on the same prototype (e.g. '_getUserSummary').
+ * @param {Array&lt;string | { name: string, type?: string, required?: boolean, default?: * }&gt;} [parameterNames] -
+ *   Payload keys, in the positional order the private method expects them. A plain string is just a
+ *   mapping; an object adds a contract enforced at the boundary: `type` (one of PARAMETER_TYPES),
+ *   `required`, and `default` (used when the key is absent). Violations reject the call with kind
+ *   'badRequest' — all of them at once — and the private method never runs, so it can trust its
+ *   arguments and skip the guard clauses. A name that is absent, optional, and defaultless arrives
+ *   as undefined.
+ * @returns {function(): string} Public method returning the stringified answer envelope.
+ * @throws {Error} At definition time, when a contract entry is malformed (developer bug).
+ */
+AjaxAdapter.expose = function(privateMethodName, parameterNames) {
+	// Contracts are validated eagerly so a typo in a type name fails when the script include
+	// loads, in development, not on the first client call in production.
+	var contracts = (parameterNames || []).map(function(entry) {
+		return AjaxAdapter.normalizeParameter(entry);
+	});
+	return function() {
+		var processor = this;
+		try {
+			AjaxAdapter.warnOnVersionSkew(processor);
+			var privateMethod = processor[privateMethodName];
+			if (typeof privateMethod !== 'function') {
+				throw new Error('Private method "' + privateMethodName + '" does not exist on ' + processor.type);
+			}
+			var args = AjaxAdapter.readArguments(processor, contracts);
+			var value = privateMethod.apply(processor, args);
+			if (AjaxAdapter.isFailure(value)) {
+				return AjaxAdapter.failureEnvelope(value);
+			}
+			return AjaxAdapter.resultEnvelope(value);
+		} catch (error) {
+			if (AjaxAdapter.isFailure(error)) {
+				try {
+					return AjaxAdapter.failureEnvelope(error);
+				} catch (envelopeError) {
+					// A failure whose details cannot be serialized (circular value, Java object)
+					// falls through to the anonymized path below, so the generated method keeps
+					// its never-throws invariant.
+					error = envelopeError;
+				}
+			}
+			var reference = gs.generateGUID();
+			var message = error &amp;&amp; error.message ? String(error.message) : String(error);
+			var stack = error &amp;&amp; error.stack ? '\n' + String(error.stack) : '';
+			// Reference FIRST so the client's ref id finds this row instantly via
+			// syslog.message STARTSWITH &lt;ref&gt;. The [AjaxAdapter] tag supports a LIKE sweep. The private
+			// method name stays in the log only, it never crosses to the client on the anonymized path.
+			gs.error(reference + ' [AjaxAdapter] ' + processor.type + '.' + privateMethodName + ': ' + message + stack);
+			return JSON.stringify({
+				ok: false,
+				error: {
+					kind: 'server',
+					message: 'Unexpected server error',
+					reference: reference,
+				},
+			});
+		}
+	};
+};
+
+/**
+ * Signals an EXPECTED, user-facing failure from inside a private method.
+ * Throw it (or return it) to reject the client call with a safe, unlogged message.
+ *
+ * Throwing reads best as a guard clause, and returning suits a Result-style method. Either way the
+ * adapter recognizes the marker and converts it to a business envelope.
+ *
+ * @param {string} message - Developer-authored message, safe to show to the caller.
+ * @param {{ kind?: string, details?: * }} [options] - kind overrides the 'business' discriminator. details is
+ *   serialized into the client envelope, so keep it free of anything the caller shouldn't see.
+ * @returns {Error} A marked failure the adapter converts to an { ok: false } envelope.
+ * @throws {Error} When message is not a non-empty string (developer bug). Thrown from inside a
+ *   private method, the adapter logs it and anonymizes it to a 'server' envelope, so the misuse
+ *   surfaces in the log instead of shipping a blank message to the user.
+ */
+AjaxAdapter.fail = function(message, options) {
+	if (typeof message !== 'string' || message === '') {
+		throw new Error('AjaxAdapter.fail requires a non-empty message string');
+	}
+	var failure = new Error(message);
+	failure.isAjaxBusinessFailure = true;
+	failure.kind = options &amp;&amp; options.kind ? String(options.kind) : 'business';
+	if (options &amp;&amp; options.details !== undefined) {
+		failure.details = options.details;
+	}
+	return failure;
+};
+
+AjaxAdapter.prototype = {
+	type: 'AjaxAdapter',
+};
+
+/**
+ * Reads the positional arguments for a private method from the request and enforces the
+ * parameter contracts.
+ *
+ * Every parameter arrives inside one JSON object under PAYLOAD_PARAM. getParameter()
+ * returns a Java string under the Rhino engine. `new String()` moves it to the JS side
+ * and the outer String() collapses the String *object* wrapper into a primitive before
+ * JSON.parse. Values that come back out of JSON.parse are already JS primitives. A
+ * number is a number, not '42', and needs no further wrapping. A date tag becomes a
+ * GlideDateTime via the reviver.
+ *
+ * @param {*} processor - The AbstractAjaxProcessor instance handling the request.
+ * @param {Array&lt;string | Object&gt;} parameterContracts - Entries accepted by expose(); raw or normalized.
+ * @returns {Array&lt;*&gt;} Parsed arguments. An omitted key (or no payload at all) is undefined
+ *   unless the contract supplies a default.
+ * @throws {Error} Via AjaxAdapter.fail (kind 'badRequest') when the payload is oversized, not a
+ *   JSON object, carries an invalid date tag, or violates a parameter contract.
+ */
+AjaxAdapter.readArguments = function(processor, parameterContracts) {
+	var contracts = (parameterContracts || []).map(function(entry) {
+		return AjaxAdapter.normalizeParameter(entry);
+	});
+	var rawParam = processor.getParameter(AjaxAdapter.PAYLOAD_PARAM);
+	// Coerce the Java string to a JS primitive BEFORE any comparison: a Java "" is not === '' in
+	// Rhino, so testing the raw value would misclassify a genuinely empty payload as non-empty.
+	var payloadRaw = (rawParam === null || rawParam === undefined) ? '' : String(new String(rawParam));
+
+	if (payloadRaw.length &gt; AjaxAdapter.MAX_PAYLOAD_LENGTH) {
+		throw AjaxAdapter.fail(AjaxAdapter.PAYLOAD_PARAM + ' exceeds the maximum size of ' + AjaxAdapter.MAX_PAYLOAD_LENGTH + ' characters', { kind: 'badRequest' });
+	}
+
+	// No payload (e.g. a raw GlideAjax caller sending nothing): treated as an empty object, so
+	// required/default contracts still apply.
+	var payload = {};
+	if (payloadRaw !== '') {
+		try {
+			payload = JSON.parse(payloadRaw, AjaxAdapter.reviveWireValue);
+		} catch (parseError) {
+			if (AjaxAdapter.isFailure(parseError)) {
+				throw parseError; // a reviver rejection (invalid date tag) is already typed
+			}
+			throw AjaxAdapter.fail(AjaxAdapter.PAYLOAD_PARAM + ' is not valid JSON: ' + parseError.message, { kind: 'badRequest' });
+		}
+		// Array.isArray: an array is typeof 'object' too, but its "arguments" would all silently
+		// resolve to undefined. Reject it as the contract violation it is.
+		if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+			throw AjaxAdapter.fail(AjaxAdapter.PAYLOAD_PARAM + ' must be a JSON object', { kind: 'badRequest' });
+		}
+	}
+
+	// Collect EVERY violation before failing, so a sloppy caller fixes the call in one
+	// round trip instead of one message per attempt.
+	var violations = [];
+	var args = contracts.map(function(contract) {
+		// hasOwnProperty so a parameter named like an Object.prototype member ('constructor',
+		// 'toString', …) resolves to undefined when absent, not to an inherited function.
+		var isPresent = Object.prototype.hasOwnProperty.call(payload, contract.name);
+		var value = isPresent ? payload[contract.name] : undefined;
+		if (value === undefined &amp;&amp; Object.prototype.hasOwnProperty.call(contract, 'default')) {
+			return contract['default'];
+		}
+		if (value === undefined) {
+			if (contract.required) {
+				violations.push("'" + contract.name + "' is required");
+			}
+			return undefined;
+		}
+		if (contract.type !== undefined &amp;&amp; !AjaxAdapter.matchesType(value, contract.type)) {
+			violations.push("'" + contract.name + "' must be of type " + contract.type);
+		}
+		return value;
+	});
+	if (violations.length &gt; 0) {
+		throw AjaxAdapter.fail('Invalid parameters: ' + violations.join('; '), { kind: 'badRequest' });
+	}
+	return args;
+};
+
+/**
+ * Detects an AjaxAdapter.fail marker. Uses a named boolean flag rather than instanceof because a
+ * failure created in one script-include scope must still be recognized here. instanceof is
+ * unreliable across ServiceNow scope boundaries, a plain flag is not.
+ *
+ * @param {*} candidate
+ * @returns {boolean} True when the value is a marked AjaxAdapter.fail failure.
+ */
+AjaxAdapter.isFailure = function(candidate) {
+	return Boolean(candidate) &amp;&amp; candidate.isAjaxBusinessFailure === true;
+};
+
+/**
+ * Serializes a marked failure into an { ok: false } envelope. undefined fields (e.g. details) drop
+ * out. No method name is emitted. The client already knows the public method it called.
+ *
+ * @param {Error} failure - An AjaxAdapter.fail value.
+ * @returns {string}
+ * @throws {Error} When details cannot be serialized (circular value, Java object); expose()
+ *   converts that into the anonymized server path.
+ */
+AjaxAdapter.failureEnvelope = function(failure) {
+	return JSON.stringify({
+		ok: false,
+		error: {
+			kind: failure.kind || 'business',
+			message: String(failure.message),
+			details: failure.details,
+		},
+	}, AjaxAdapter.serializeWireValue);
+};
+
+/**
+ * Serializes a private method's return value into an { ok: true } envelope.
+ * Faithful round-trip: undefined omits `result` (JSON.stringify drops it) and the client reads
+ * it back as undefined. null is preserved. No undefined-to-null.
+ *
+ * @param {*} value - The private method's return value.
+ * @returns {string}
+ * @throws {Error} When the value contains something JSON cannot represent (see serializeWireValue).
+ */
+AjaxAdapter.resultEnvelope = function(value) {
+	return JSON.stringify({ ok: true, result: value }, AjaxAdapter.serializeWireValue);
+};
+
+/**
+ * Normalizes one expose() parameter entry into { name, type?, required, default? }.
+ * Idempotent: feeding a normalized contract back in returns an equivalent contract.
+ *
+ * @param {string | { name: string, type?: string, required?: boolean, default?: * }} entry
+ * @returns {{ name: string, type: (string|undefined), required: boolean, default?: * }}
+ * @throws {Error} When the entry or its type is malformed (developer bug, thrown at load time).
+ */
+AjaxAdapter.normalizeParameter = function(entry) {
+	if (typeof entry === 'string' &amp;&amp; entry !== '') {
+		return { name: entry, type: undefined, required: false };
+	}
+	if (entry !== null &amp;&amp; typeof entry === 'object' &amp;&amp; typeof entry.name === 'string' &amp;&amp; entry.name !== '') {
+		if (entry.type !== undefined &amp;&amp; AjaxAdapter.PARAMETER_TYPES.indexOf(entry.type) === -1) {
+			throw new Error('AjaxAdapter.expose: unknown parameter type "' + entry.type + '" for "' + entry.name + '" (expected one of: ' + AjaxAdapter.PARAMETER_TYPES.join(', ') + ')');
+		}
+		var contract = { name: entry.name, type: entry.type, required: entry.required === true };
+		if (Object.prototype.hasOwnProperty.call(entry, 'default')) {
+			contract['default'] = entry['default'];
+		}
+		return contract;
+	}
+	throw new Error('AjaxAdapter.expose: each parameter must be a non-empty string name or a { name, type?, required?, default? } contract');
+};
+
+/**
+ * @param {*} value - A payload value (post-revive, so a date tag is already a GlideDateTime).
+ * @param {string} type - One of PARAMETER_TYPES.
+ * @returns {boolean} True when the value satisfies the declared type. null satisfies none.
+ */
+AjaxAdapter.matchesType = function(value, type) {
+	switch (type) {
+		case 'string': return typeof value === 'string';
+		case 'number': return typeof value === 'number';
+		case 'boolean': return typeof value === 'boolean';
+		case 'array': return Array.isArray(value);
+		case 'object': return value !== null &amp;&amp; typeof value === 'object' &amp;&amp; !Array.isArray(value);
+		case 'date': return AjaxAdapter.isGlideDateTime(value);
+		default: return true; // unreachable: normalizeParameter validated the type
+	}
+};
+
+/**
+ * JSON.stringify replacer for outbound envelopes: converts date-times to the wire tag and fails
+ * LOUDLY on platform objects JSON cannot represent (which would otherwise serialize as {}).
+ *
+ * Reads `this[key]` rather than `value` because Date.prototype.toJSON runs before a replacer
+ * sees the value; the holder object still has the original.
+ *
+ * @param {string} key
+ * @param {*} value
+ * @returns {*}
+ * @throws {Error} On an invalid Date, a GlideElement, or any other Java object in the result.
+ */
+AjaxAdapter.serializeWireValue = function(key, value) {
+	var original = this[key];
+	if (original instanceof Date) {
+		if (isNaN(original.getTime())) {
+			throw new Error('result value at "' + key + '" is an invalid Date');
+		}
+		return AjaxAdapter.dateTimeTag(original.getTime());
+	}
+	if (AjaxAdapter.isGlideDateTime(original)) {
+		return AjaxAdapter.dateTimeTag(Number(original.getNumericValue()));
+	}
+	if (AjaxAdapter.isGlideElement(original)) {
+		throw new Error('result value at "' + key + '" is a GlideElement, which JSON serializes as {}. Return a plain value instead: String(gr.getValue(...)) or gr.&lt;field&gt;.getDisplayValue()');
+	}
+	if (AjaxAdapter.isJavaObject(original)) {
+		throw new Error('result value at "' + key + '" is a Java object, which JSON cannot represent. Coerce it with String()/Number() first');
+	}
+	return value;
+};
+
+/**
+ * JSON.parse reviver for the inbound payload: converts a wire date tag into a GlideDateTime.
+ *
+ * @param {string} key
+ * @param {*} value
+ * @returns {*}
+ * @throws {Error} Via AjaxAdapter.fail (kind 'badRequest') when a tag's value is not a parseable
+ *   ISO 8601 date-time.
+ */
+AjaxAdapter.reviveWireValue = function(key, value) {
+	if (!AjaxAdapter.isDateTag(value)) {
+		return value;
+	}
+	var milliseconds = Date.parse(value[AjaxAdapter.DATETIME_TAG]);
+	if (isNaN(milliseconds)) {
+		throw AjaxAdapter.fail(AjaxAdapter.DATETIME_TAG + ' value "' + value[AjaxAdapter.DATETIME_TAG] + '" is not a valid ISO 8601 date-time', { kind: 'badRequest' });
+	}
+	var dateTime = new GlideDateTime();
+	dateTime.setNumericValue(milliseconds);
+	return dateTime;
+};
+
+/**
+ * @param {number} milliseconds - Epoch milliseconds.
+ * @returns {Object} The single-key wire tag with the ISO 8601 UTC representation.
+ */
+AjaxAdapter.dateTimeTag = function(milliseconds) {
+	var tag = {};
+	tag[AjaxAdapter.DATETIME_TAG] = new Date(milliseconds).toISOString();
+	return tag;
+};
+
+/**
+ * @param {*} candidate
+ * @returns {boolean} True when the value is exactly a wire date tag: one own key, the tag, a string.
+ */
+AjaxAdapter.isDateTag = function(candidate) {
+	return Boolean(candidate) &amp;&amp;
+		typeof candidate === 'object' &amp;&amp;
+		!Array.isArray(candidate) &amp;&amp;
+		typeof candidate[AjaxAdapter.DATETIME_TAG] === 'string' &amp;&amp;
+		Object.keys(candidate).length === 1;
+};
+
+/**
+ * Duck-typed GlideDateTime detection. instanceof is unreliable when a scoped app hands its
+ * GlideDateTime to this global adapter (the same reason isFailure uses a flag), so the
+ * fingerprint is the method trio no other Glide value class carries together.
+ *
+ * @param {*} candidate
+ * @returns {boolean}
+ */
+AjaxAdapter.isGlideDateTime = function(candidate) {
+	return Boolean(candidate) &amp;&amp;
+		typeof candidate.getNumericValue === 'function' &amp;&amp;
+		typeof candidate.setNumericValue === 'function' &amp;&amp;
+		typeof candidate.getTZOffset === 'function';
+};
+
+/**
+ * Duck-typed GlideElement detection: getED (the element descriptor accessor) is unique to
+ * record fields among the values a private method plausibly returns.
+ *
+ * @param {*} candidate
+ * @returns {boolean}
+ */
+AjaxAdapter.isGlideElement = function(candidate) {
+	return Boolean(candidate) &amp;&amp;
+		typeof candidate.getED === 'function' &amp;&amp;
+		typeof candidate.getDisplayValue === 'function';
+};
+
+/**
+ * Generic Java-object detection: Rhino exposes getClass() on wrapped Java objects; plain JS
+ * values have no such member. Catches GlideRecord, GlideDuration, and friends.
+ *
+ * @param {*} candidate
+ * @returns {boolean}
+ */
+AjaxAdapter.isJavaObject = function(candidate) {
+	return Boolean(candidate) &amp;&amp;
+		typeof candidate === 'object' &amp;&amp;
+		typeof candidate.getClass === 'function';
+};
+
+/**
+ * Logs a warning when the calling AjaxProxy's major.minor differs from this file's. The two
+ * files share one wire format, so a skewed install surfaces here instead of as confusing
+ * 'malformed' errors. Silent when the param is absent (a pre-1.1 proxy or a raw GlideAjax caller).
+ *
+ * @param {*} processor - The AbstractAjaxProcessor instance handling the request.
+ */
+AjaxAdapter.warnOnVersionSkew = function(processor) {
+	var rawVersion = processor.getParameter(AjaxAdapter.VERSION_PARAM);
+	if (rawVersion === null || rawVersion === undefined || rawVersion === '') {
+		return;
+	}
+	var clientVersion = String(new String(rawVersion));
+	if (AjaxAdapter.majorMinorOf(clientVersion) === AjaxAdapter.majorMinorOf(AjaxAdapter.VERSION)) {
+		return;
+	}
+	gs.warn('[AjaxAdapter] version skew: client AjaxProxy ' + clientVersion + ' vs server AjaxAdapter ' + AjaxAdapter.VERSION + '. Install matching versions of both files (they share one wire format)');
+};
+
+/**
+ * @param {string} version - A semver string.
+ * @returns {string} The 'major.minor' prefix.
+ */
+AjaxAdapter.majorMinorOf = function(version) {
+	return String(version).split('.').slice(0, 2).join('.');
+};]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:30:48&lt;/sys_created_on&gt;&lt;sys_id&gt;abbe4f0a830a4f10f17ccd60ceaad30d&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter&lt;/sys_name&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_abbe4f0a830a4f10f17ccd60ceaad30d&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 19:34:49&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;abbe4f0a830a4f10f17ccd60ceaad30d&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:30:47&lt;/sys_created_on&gt;&lt;sys_id&gt;b52f4b4a830a4f10f17ccd60ceaad381&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 19:30:47&lt;/sys_updated_on&gt;&lt;table&gt;sys_script_include&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-1156511122</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>7e9e9b8a838a4f10f17ccd60ceaad3e5</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f621ff6760000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxAdapter</target_name>
+<type>Script Include</type>
+<update_domain>global</update_domain>
+<update_guid>34109bca700a4f10ce93fb0db059d650</update_guid>
+<update_guid_history>34109bca700a4f10ce93fb0db059d650:-1156511122,584f8f4ad20a4f100e9210c74189b34e:348617699,522fcbc6610a4f10d6d37e2e56a4cea5:-482382380</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_ui_script_911e4f86830a4f10f17ccd60ceaad368</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_ui_script"&gt;&lt;sys_ui_script action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;description&gt;Client half of AjaxAdapter/AjaxProxy.
+AjaxProxy.call() invokes an AjaxAdapter endpoint and returns a Promise with typed errors. Load Global + UI Type Desktop.
+Docs: github.com/Eiluviann/sn-ajax-adapter&lt;/description&gt;&lt;global&gt;true&lt;/global&gt;&lt;ignore_in_now_experience&gt;false&lt;/ignore_in_now_experience&gt;&lt;name&gt;AjaxProxy&lt;/name&gt;&lt;script&gt;&lt;![CDATA[/**
+ * AjaxProxy: client-side remote proxy for AjaxAdapter script includes.
+ * Server-side counterpart: AjaxAdapter.
+ *
+ * Full documentation, install steps, and design notes: https://github.com/Eiluviann/sn-ajax-adapter
+ */
+var AjaxProxy = (function() {
+
+	/** Semver of this file. Bump on every change (see the repo's CHANGELOG.md). */
+	var VERSION = '1.1.0';
+
+	/** Single carrier param for the JSON argument payload. Must match AjaxAdapter.PAYLOAD_PARAM. */
+	var PAYLOAD_PARAM = 'sysparm_payload';
+
+	/**
+	 * Single-key wrapper marking a date-time on the wire. Must match AjaxAdapter.DATETIME_TAG.
+	 * A Date parameter is sent as { $dateTime: '&lt;ISO 8601 UTC&gt;' } and arrives server-side as a
+	 * GlideDateTime; a tagged value in the answer is revived to a Date. Disable per call with
+	 * { dates: false }.
+	 */
+	var DATETIME_TAG = '$dateTime';
+
+	/** Param carrying this file's VERSION so the server can warn on a mismatched install. */
+	var VERSION_PARAM = 'sysparm_adapter_version';
+
+	/** Discriminators on a rejected call's Error.kind. Branch on these, not on messages. */
+	var ErrorKind = {
+		SERVER: 'server', // unexpected server bug, carries a `reference` for the server log
+		BUSINESS: 'business', // expected, developer-authored failure (AjaxAdapter.fail), safe to show
+		BAD_REQUEST: 'badRequest', // the server could not read the request (malformed payload)
+		TIMEOUT: 'timeout', // no answer within the timeout window
+		EMPTY: 'empty', // empty answer: client_callable flag, ACL, unknown method, or session timeout
+		MALFORMED: 'malformed', // answer was not the AjaxAdapter envelope
+	};
+
+	/** @type {number} Milliseconds before a call rejects with ErrorKind.TIMEOUT. */
+	var defaultTimeoutMs = 60000;
+
+	/** @type {string} Table the correlation reference deep-links into. Set 'syslog_app_scope' for a scoped adapter. */
+	var logTable = 'syslog';
+
+	/** @type {function(Error): void} Global fallback error handler. Replace via setErrorHandler. */
+	var globalErrorHandler = function(error) {
+		if (typeof console === 'undefined' || typeof console.error !== 'function') {
+			return;
+		}
+		var link = logUrl(error);
+		console.error('[AjaxProxy] ' + error.message + (link ? '\nLog: ' + link : ''));
+	};
+
+	/**
+	 * Calls one public method on an AjaxAdapter script include.
+	 *
+	 * @param {string} scriptIncludeName - e.g. 'UserLookupAjax' (add the scope prefix for scoped includes).
+	 * @param {string} publicMethodName - e.g. 'getUserSummary'.
+	 * @param {Object&lt;string, *&gt;} [parameters] - Sent as one JSON payload (sysparm_payload). Because the whole
+	 *   object is JSON-stringified, every value keeps its exact type on the server. A number stays a number,
+	 *   never '42'. An undefined value (or an omitted key) sends nothing and the private method receives
+	 *   undefined. null is sent and received as null. A Date arrives server-side as a GlideDateTime, and a
+	 *   returned GlideDateTime resolves as a Date (see the dates option).
+	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|{ attempts?: number, delay?: number, on?: string[] }, dates?: boolean }} [options]
+	 *   Passing any handler selects callback style. Omitting them all is promise style. onError (when provided)
+	 *   replaces the global handler for this call. timeout overrides the default for this call. retry controls
+	 *   automatic re-attempts, OFF by default. Opt in with retry: true (retry a transient ErrorKind.TIMEOUT
+	 *   once with backoff), a number for total attempts, or { attempts, delay, on } to tune which kinds retry.
+	 *   Retry re-sends the same payload, so only enable it for idempotent (read) methods (see header).
+	 *   dates (default true) marshals Date parameters and revives tagged date-times in the answer; set false
+	 *   to send a Date as its plain ISO string and leave tags untouched.
+	 * @returns {Promise&lt;*&gt;} Resolves with the private method's return value. Rejects with a typed Error (see ErrorKind).
+	 * @throws {Error} When a provided handler is not a function (caller bug).
+	 */
+	function call(scriptIncludeName, publicMethodName, parameters, options) {
+		var opts = options || {};
+		assertHandler(opts.onSuccess, 'onSuccess');
+		assertHandler(opts.onError, 'onError');
+		assertHandler(opts.onComplete, 'onComplete');
+
+		var timeoutMs = typeof opts.timeout === 'number' ? opts.timeout : defaultTimeoutMs;
+		var shouldMarshalDates = opts.dates !== false;
+		var promise = invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, normalizeRetry(opts.retry), shouldMarshalDates);
+
+		var hasCallback = Boolean(opts.onSuccess || opts.onError || opts.onComplete);
+
+		// Promise style (no callbacks): hand back the raw promise untouched. The caller owns
+		// the outcome through .then/.catch. An ignored rejection surfaces once via the browser's
+		// native unhandled-rejection warning. We attach no logger, so a caller that added .catch
+		// never sees a duplicate console entry.
+		if (!hasCallback) {
+			return promise;
+		}
+
+		// Callback style: drive the handlers on an internal branch. The error sink is the per-call
+		// onError when provided, otherwise the global handler, so a failure is never silently
+		// swallowed. When onError IS provided the global handler never runs. A throw inside ANY user
+		// callback (onSuccess, onError, onComplete, even the global handler itself) is routed
+		// through reportCallbackError, so the chain can never reject and onComplete always runs.
+		var errorSink = typeof opts.onError === 'function' ? opts.onError : globalErrorHandler;
+		promise
+			.then(
+				function(result) {
+					if (typeof opts.onSuccess === 'function') {
+						opts.onSuccess(result);
+					}
+				},
+				function(error) {
+					errorSink(error);
+				},
+			)
+			.catch(function(callbackError) {
+				reportCallbackError(callbackError);
+			})
+			.then(function() {
+				if (typeof opts.onComplete !== 'function') {
+					return;
+				}
+				try {
+					opts.onComplete();
+				} catch (completeError) {
+					reportCallbackError(completeError);
+				}
+			});
+
+		return promise;
+	}
+
+	/**
+	 * Binds call() to one script include, with optional per-proxy defaults.
+	 *
+	 * @example
+	 *   var userLookup = AjaxProxy.for('UserLookupAjax', { onError: showToast, timeout: 15000 });
+	 *   userLookup('getUserSummary', { userId: g_form.getUniqueValue() }).then(render);
+	 *
+	 * @param {string} scriptIncludeName - The script include every returned call targets.
+	 * @param {{ onSuccess?: function(*): void, onError?: function(Error): void, onComplete?: function(): void, timeout?: number, retry?: boolean|number|Object, dates?: boolean }} [defaults]
+	 *   Any option call() accepts. Merged under each call's own options, which win per field, so a
+	 *   proxy-wide onError/timeout/retry applies unless a specific call overrides it.
+	 * @returns {function(string, Object&lt;string, *&gt;=, Object=): Promise&lt;*&gt;} (publicMethodName, parameters, options) =&gt; Promise.
+	 */
+	function forScriptInclude(scriptIncludeName, defaults) {
+		var baseDefaults = defaults || {};
+		return function(publicMethodName, parameters, options) {
+			return call(scriptIncludeName, publicMethodName, parameters, mergeOptions(baseDefaults, options));
+		};
+	}
+
+	/**
+	 * Opt-in layer for rapid-fire calls (type-ahead, live search): debounce and/or drop stale
+	 * responses. Returns a call function bound to one method. A superseded call is ABANDONED. Its
+	 * promise silently never settles (like RxJS switchMap), so `search(q).then(render)` renders only
+	 * the latest and stale keystrokes quietly do nothing. Consequence of never settling: a stale
+	 * call's .finally()/.then() never runs, so don't hang cleanup you always need off a channel call.
+	 * Nothing here touches call()/for(). Reach for it only when you want it, and keep using your own
+	 * debouncing if you already have it.
+	 *
+	 * @example
+	 *   var search = AjaxProxy.channel('UserLookupAjax', 'searchUsers', { debounce: 250 });
+	 *   input.addEventListener('input', function() { search({ query: input.value }).then(render); });
+	 *
+	 * @param {string} scriptIncludeName
+	 * @param {string} publicMethodName
+	 * @param {{ debounce?: number, latest?: boolean, timeout?: number, retry?: *, dates?: boolean }} [channelOptions]
+	 *   debounce waits that many ms of quiet before firing. latest (default true) drops out-of-order
+	 *   responses. timeout/retry/dates pass through to each underlying call.
+	 * @returns {function(Object&lt;string, *&gt;=): Promise&lt;*&gt;} (parameters) =&gt; Promise for the latest call only.
+	 */
+	function channel(scriptIncludeName, publicMethodName, channelOptions) {
+		var settings = channelOptions || {};
+		var debounceMs = typeof settings.debounce === 'number' ? settings.debounce : 0;
+		var dropStale = settings.latest !== false;
+		var callOptions = { timeout: settings.timeout, retry: settings.retry, dates: settings.dates };
+		var seq = 0;
+		var latestSeq = 0;
+		var debounceTimer;
+
+		return function(parameters) {
+			seq += 1;
+			var mySeq = seq;
+			latestSeq = mySeq;
+			if (debounceTimer !== undefined) {
+				clearTimeout(debounceTimer);
+				debounceTimer = undefined;
+			}
+			return new Promise(function(resolve, reject) {
+				function fire() {
+					debounceTimer = undefined;
+					call(scriptIncludeName, publicMethodName, parameters, callOptions).then(
+						function(result) {
+							// Abandon superseded responses: only the newest call settles.
+							if (!dropStale || mySeq === latestSeq) {
+								resolve(result);
+							}
+						},
+						function(error) {
+							if (!dropStale || mySeq === latestSeq) {
+								reject(error);
+							}
+						},
+					);
+				}
+				if (debounceMs &gt; 0) {
+					debounceTimer = setTimeout(fire, debounceMs);
+				} else {
+					fire();
+				}
+			});
+		};
+	}
+
+	/**
+	 * Replaces the global handler used as the error sink for callback-style calls that omit onError.
+	 * Promise-style calls own their errors through .catch and are unaffected by this.
+	 *
+	 * @param {function(Error): void} handler
+	 * @throws {Error} When handler is not a function (caller bug).
+	 */
+	function setErrorHandler(handler) {
+		if (typeof handler !== 'function') {
+			throw new Error('AjaxProxy.setErrorHandler requires a function');
+		}
+		globalErrorHandler = handler;
+	}
+
+	/**
+	 * Sets the default per-call timeout in milliseconds.
+	 *
+	 * @param {number} milliseconds - Must be a positive number.
+	 * @throws {Error} When milliseconds is not a positive number (caller bug).
+	 */
+	function setDefaultTimeout(milliseconds) {
+		if (typeof milliseconds !== 'number' || !(milliseconds &gt; 0)) {
+			throw new Error('AjaxProxy.setDefaultTimeout requires a positive number of milliseconds');
+		}
+		defaultTimeoutMs = milliseconds;
+	}
+
+	/**
+	 * Sets the table the server correlation reference deep-links into (default 'syslog').
+	 * Point this at 'syslog_app_scope' when the adapter runs inside a scoped application.
+	 *
+	 * @param {string} tableName
+	 * @throws {Error} When tableName is not a non-empty string (caller bug).
+	 */
+	function setLogTable(tableName) {
+		if (typeof tableName !== 'string' || tableName === '') {
+			throw new Error('AjaxProxy.setLogTable requires a non-empty table name');
+		}
+		logTable = tableName;
+	}
+
+	/**
+	 * Fires the GlideAjax transport and resolves/rejects with the unwrapped envelope.
+	 * A single settle guard makes the timeout and the answer callback mutually exclusive.
+	 *
+	 * @param {string} scriptIncludeName
+	 * @param {string} publicMethodName
+	 * @param {Object&lt;string, *&gt;} [parameters]
+	 * @param {number} timeoutMs
+	 * @param {boolean} shouldMarshalDates - Marshal Date params to wire tags and revive tags in the answer.
+	 * @returns {Promise&lt;*&gt;}
+	 */
+	function invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs, shouldMarshalDates) {
+		return new Promise(function(resolve, reject) {
+			var lbl = scriptIncludeName + '.' + publicMethodName;
+
+			// Guard serialization up front: a circular / non-serializable parameter (or an
+			// invalid Date) is the caller's bug, so fail fast with a typed badRequest rather
+			// than waiting for the server to reject a payload it never received.
+			var payloadJson;
+			try {
+				payloadJson = JSON.stringify(parameters || {}, shouldMarshalDates ? serializeDateParameter : undefined);
+			} catch (serializeError) {
+				reject(ajaxError(ErrorKind.BAD_REQUEST, lbl + ' has non-serializable parameters: ' + serializeError.message, {
+					scriptInclude: scriptIncludeName,
+					method: publicMethodName,
+				}));
+				return;
+			}
+
+			var settled = false;
+			var timer;
+			function settle(action, argument) {
+				if (settled) {
+					return;
+				}
+				settled = true;
+				if (timer !== undefined) {
+					clearTimeout(timer);
+				}
+				action(argument);
+			}
+
+			// Build the transport first, then arm the timer: if the constructor ever throws, no
+			// stray timer is left running (the Promise executor rejects with that error).
+			var ajax = new GlideAjax(scriptIncludeName);
+			ajax.addParam('sysparm_name', publicMethodName);
+			ajax.addParam(PAYLOAD_PARAM, payloadJson);
+			ajax.addParam(VERSION_PARAM, VERSION);
+
+			timer = setTimeout(function() {
+				settle(reject, ajaxError(ErrorKind.TIMEOUT, lbl + ' timed out after ' + timeoutMs + 'ms', {
+					scriptInclude: scriptIncludeName,
+					method: publicMethodName,
+				}));
+			}, timeoutMs);
+
+			ajax.getXMLAnswer(function(answer) {
+				if (answer === null || answer === undefined || answer === '') {
+					settle(reject, ajaxError(ErrorKind.EMPTY, lbl + ' returned no answer (possible causes: client_callable flag, ACL, unknown method name, or session timeout)', {
+						scriptInclude: scriptIncludeName,
+						method: publicMethodName,
+					}));
+					return;
+				}
+				var envelope;
+				try {
+					envelope = JSON.parse(answer, shouldMarshalDates ? reviveDateTag : undefined);
+				} catch (parseError) {
+					settle(reject, ajaxError(ErrorKind.MALFORMED, lbl + ' returned a non-JSON answer: ' + parseError.message, {
+						scriptInclude: scriptIncludeName,
+						method: publicMethodName,
+					}));
+					return;
+				}
+				// Require a boolean `ok`, so a parseable-but-foreign JSON object (a script include that
+				// isn't AjaxAdapter-based) is reported as malformed rather than a fabricated 'server' error.
+				if (envelope === null || typeof envelope !== 'object' || typeof envelope.ok !== 'boolean') {
+					settle(reject, ajaxError(ErrorKind.MALFORMED, lbl + ' returned an unrecognized answer shape', {
+						scriptInclude: scriptIncludeName,
+						method: publicMethodName,
+					}));
+					return;
+				}
+				if (envelope.ok === true) {
+					settle(resolve, envelope.result);
+					return;
+				}
+				var serverError = envelope.error || {};
+				settle(reject, ajaxError(serverError.kind || ErrorKind.SERVER, serverError.message || 'unknown server error', {
+					scriptInclude: scriptIncludeName,
+					method: publicMethodName,
+					reference: serverError.reference,
+					details: serverError.details,
+				}));
+			});
+		});
+	}
+
+	/**
+	 * Runs invoke() and re-attempts on a retryable failure with exponential backoff.
+	 * Transparent to the caller: same resolve/reject contract, just resilient.
+	 *
+	 * @param {string} scriptIncludeName
+	 * @param {string} publicMethodName
+	 * @param {Object&lt;string, *&gt;} [parameters]
+	 * @param {number} timeoutMs
+	 * @param {{ attempts: number, delay: number, on: string[] }} retry
+	 * @param {boolean} shouldMarshalDates
+	 * @returns {Promise&lt;*&gt;}
+	 */
+	function invokeWithRetry(scriptIncludeName, publicMethodName, parameters, timeoutMs, retry, shouldMarshalDates) {
+		var attempt = 0;
+		function run() {
+			return invoke(scriptIncludeName, publicMethodName, parameters, timeoutMs, shouldMarshalDates).then(null, function(error) {
+				attempt += 1;
+				var canRetry = attempt &lt; retry.attempts &amp;&amp; retry.on.indexOf(error.kind) !== -1;
+				if (!canRetry) {
+					throw error;
+				}
+				return delay(retry.delay * Math.pow(2, attempt - 1)).then(run);
+			});
+		}
+		return run();
+	}
+
+	/**
+	 * Normalizes the `retry` option into { attempts, delay, on }. Retry is OFF by default. Opt in
+	 * with retry: true (retry a transient timeout once), a number (total attempts), or an object
+	 * (tune each field). undefined/false/0 disable it.
+	 *
+	 * @param {boolean|number|{ attempts?: number, delay?: number, on?: string[] }} [retry]
+	 * @returns {{ attempts: number, delay: number, on: string[] }}
+	 */
+	function normalizeRetry(retry) {
+		var off = { attempts: 1, delay: 0, on: [] };
+		var on = { attempts: 2, delay: 500, on: [ErrorKind.TIMEOUT] };
+		if (retry === undefined || retry === false || retry === 0) {
+			return off;
+		}
+		if (retry === true) {
+			return on;
+		}
+		if (typeof retry === 'number') {
+			return { attempts: Math.max(1, retry), delay: on.delay, on: on.on };
+		}
+		return {
+			attempts: typeof retry.attempts === 'number' ? Math.max(1, retry.attempts) : on.attempts,
+			delay: typeof retry.delay === 'number' ? retry.delay : on.delay,
+			on: Array.isArray(retry.on) ? retry.on : on.on,
+		};
+	}
+
+	/**
+	 * JSON.stringify replacer: converts a Date parameter into the wire date tag.
+	 * Reads `this[key]` rather than `value` because Date.prototype.toJSON runs before a
+	 * replacer sees the value; the holder object still has the original Date.
+	 *
+	 * @param {string} key
+	 * @param {*} value
+	 * @returns {*}
+	 * @throws {Error} On an invalid Date (caller bug, surfaced as badRequest by invoke()).
+	 */
+	function serializeDateParameter(key, value) {
+		var original = this[key];
+		if (!(original instanceof Date)) {
+			return value;
+		}
+		if (isNaN(original.getTime())) {
+			throw new Error('parameter "' + key + '" is an invalid Date');
+		}
+		var tag = {};
+		tag[DATETIME_TAG] = original.toISOString();
+		return tag;
+	}
+
+	/**
+	 * JSON.parse reviver: converts a wire date tag back into a Date. Only an object whose SOLE
+	 * key is the tag with a string value is revived, so ordinary answer data can't collide.
+	 *
+	 * @param {string} key
+	 * @param {*} value
+	 * @returns {*}
+	 */
+	function reviveDateTag(key, value) {
+		if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+			return value;
+		}
+		if (typeof value[DATETIME_TAG] !== 'string' || Object.keys(value).length !== 1) {
+			return value;
+		}
+		return new Date(value[DATETIME_TAG]);
+	}
+
+	/**
+	 * @param {number} ms
+	 * @returns {Promise&lt;void&gt;} Resolves after ms milliseconds (immediately when ms &lt;= 0).
+	 */
+	function delay(ms) {
+		return new Promise(function(resolve) {
+			if (ms &gt; 0) {
+				setTimeout(resolve, ms);
+			} else {
+				resolve();
+			}
+		});
+	}
+
+	/**
+	 * Deep-links to the server log row for a server error's correlation reference, so a developer
+	 * clicks straight from the console to the exact entry (message STARTSWITH &lt;reference&gt;). No data
+	 * leaks: the URL only opens for users whose roles grant access to the log table.
+	 *
+	 * @param {Error|string} [referenceOrError] - A server error (uses its .reference) or a raw reference.
+	 * @returns {string|undefined} The filtered list URL, or undefined when there is no reference.
+	 */
+	function logUrl(referenceOrError) {
+		var reference = typeof referenceOrError === 'string' ? referenceOrError : (referenceOrError &amp;&amp; referenceOrError.reference);
+		if (!reference) {
+			return undefined;
+		}
+		var origin = (typeof window !== 'undefined' &amp;&amp; window.location &amp;&amp; window.location.origin) ? window.location.origin : '';
+		return origin + '/' + logTable + '_list.do?sysparm_query=' + encodeURIComponent('messageSTARTSWITH' + reference);
+	}
+
+	/**
+	 * Builds a typed rejection Error. undefined extras are simply not attached.
+	 *
+	 * @param {string} kind - One of ErrorKind.
+	 * @param {string} message
+	 * @param {{ scriptInclude?: string, method?: string, reference?: string, details?: * }} [extra]
+	 * @returns {Error}
+	 */
+	function ajaxError(kind, message, extra) {
+		var error = new Error(message);
+		error.name = 'AjaxProxyError';
+		error.kind = kind;
+		var info = extra || {};
+		if (info.scriptInclude !== undefined) {
+			error.scriptInclude = info.scriptInclude;
+		}
+		if (info.method !== undefined) {
+			error.method = info.method;
+		}
+		if (info.reference !== undefined) {
+			error.reference = info.reference;
+		}
+		if (info.details !== undefined) {
+			error.details = info.details;
+		}
+		return error;
+	}
+
+	/**
+	 * Routes a throw from a user callback to the global handler. The handler is the last resort:
+	 * if IT throws too, the error is deliberately swallowed. Rethrowing would reject the internal
+	 * callback chain, which both leaks an unhandled rejection and skips the onComplete stage,
+	 * breaking the "onComplete always runs" guarantee.
+	 *
+	 * @param {*} callbackError - Whatever the user callback threw.
+	 */
+	function reportCallbackError(callbackError) {
+		try {
+			globalErrorHandler(callbackError);
+		} catch (handlerError) {
+			// Intentionally swallowed: there is nowhere safer left to report it.
+		}
+	}
+
+	/**
+	 * @param {*} value
+	 * @param {string} name - Handler name, for the error message.
+	 * @throws {Error} When value is defined but not a function.
+	 */
+	function assertHandler(value, name) {
+		if (value !== undefined &amp;&amp; typeof value !== 'function') {
+			throw new Error('AjaxProxy: ' + name + ' must be a function');
+		}
+	}
+
+	/**
+	 * @param {Object} base - Per-proxy defaults.
+	 * @param {Object} [override] - Per-call options. Each present field wins.
+	 * @returns {Object}
+	 */
+	function mergeOptions(base, override) {
+		var over = override || {};
+		return {
+			onSuccess: over.onSuccess !== undefined ? over.onSuccess : base.onSuccess,
+			onError: over.onError !== undefined ? over.onError : base.onError,
+			onComplete: over.onComplete !== undefined ? over.onComplete : base.onComplete,
+			timeout: over.timeout !== undefined ? over.timeout : base.timeout,
+			retry: over.retry !== undefined ? over.retry : base.retry,
+			dates: over.dates !== undefined ? over.dates : base.dates,
+		};
+	}
+
+	return {
+		VERSION: VERSION,
+		call: call,
+		for: forScriptInclude,
+		channel: channel,
+		setErrorHandler: setErrorHandler,
+		setDefaultTimeout: setDefaultTimeout,
+		setLogTable: setLogTable,
+		logUrl: logUrl,
+		ErrorKind: ErrorKind,
+	};
+})();]]&gt;&lt;/script&gt;&lt;script_name/&gt;&lt;sys_class_name&gt;sys_ui_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:27:00&lt;/sys_created_on&gt;&lt;sys_id&gt;911e4f86830a4f10f17ccd60ceaad368&lt;/sys_id&gt;&lt;sys_mod_count&gt;4&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxProxy&lt;/sys_name&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_ui_script_911e4f86830a4f10f17ccd60ceaad368&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 19:34:49&lt;/sys_updated_on&gt;&lt;ui_type&gt;0&lt;/ui_type&gt;&lt;use_scoped_format&gt;false&lt;/use_scoped_format&gt;&lt;/sys_ui_script&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-2042681455</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>b29e9b8a838a4f10f17ccd60ceaad3e6</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f621ff8200000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxProxy</target_name>
+<type>UI Script</type>
+<update_domain>global</update_domain>
+<update_guid>4d109bcad60a4f10beeae98c5bb49971</update_guid>
+<update_guid_history>4d109bcad60a4f10beeae98c5bb49971:-2042681455,627f478ac90a4f10d86d24a4a934b481:-598494372,899e030ad60a4f107be2d597b62ead98:133526183,187e4bc6d40a4f10de419f2cf015fa04:-1718287796,da4e4b824d0a4f10860121eb23ef4402:133526183</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_properties_1b9bdbc2838a4f10f17ccd60ceaad35f</name>
+<payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties"><sys_properties action="INSERT_OR_UPDATE"><choices/><description>AjaxAdapter Portal Autoload lock. true = guardrails active (AjaxProxy config enforced, records protected). Set false to uninstall.</description><ignore_cache>false</ignore_cache><is_private>false</is_private><name>ajaxadapter.portal.lock</name><read_roles/><suffix/><sys_class_name>sys_properties</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2026-07-14 20:25:13</sys_created_on><sys_id>1b9bdbc2838a4f10f17ccd60ceaad35f</sys_id><sys_mod_count>0</sys_mod_count><sys_name>ajaxadapter.portal.lock</sys_name><sys_package display_value="Global" source="global">global</sys_package><sys_policy/><sys_scope display_value="Global">global</sys_scope><sys_update_name>sys_properties_1b9bdbc2838a4f10f17ccd60ceaad35f</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-07-14 20:25:13</sys_updated_on><type>boolean</type><value>true</value><write_roles/></sys_properties><sys_translated_text action="delete_multiple" query="documentkey=1b9bdbc2838a4f10f17ccd60ceaad35f"/></record_update>]]></payload>
+<payload_hash>-1781652734</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>b69e9b8a838a4f10f17ccd60ceaad3e2</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e21c90000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>ajaxadapter.portal.lock</target_name>
+<type>System Property</type>
+<update_domain>global</update_domain>
+<update_guid>279bdbc2fa8a4f109aac48186b0b68f9</update_guid>
+<update_guid_history>279bdbc2fa8a4f109aac48186b0b68f9:-1781652734</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_71dd4786830a4f10f17ccd60ceaad310</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;false&lt;/action_delete&gt;&lt;action_insert&gt;true&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;true&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;sp_theme&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter Portal Autoload.
+After a theme is created or updated, re-links the AjaxProxy JS Include if missing. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition/&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - ensure Include on theme&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    new AjaxAdapterPortalUtil().ensureThemeLink(current.getUniqueValue());
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:25:03&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;71dd4786830a4f10f17ccd60ceaad310&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - ensure Include on theme&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_71dd4786830a4f10f17ccd60ceaad310&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:15&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;after&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=71dd4786830a4f10f17ccd60ceaad310"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-1039428351</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>ba9e9b8a838a4f10f17ccd60ceaad3e3</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e24290000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>sp_theme</table>
+<target_name>AjaxAdapter - ensure Include on theme</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>ff9b1fc24b8a4f10f9b6ff427bf2297c</update_guid>
+<update_guid_history>ff9b1fc24b8a4f10f9b6ff427bf2297c:-1039428351,34109bcac20a4f105cfd6a27aa520f15:862042393,f1dd4786da0a4f10600948aca5792115:-374465371</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_fix_b5dd4786830a4f10f17ccd60ceaad328</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_fix"&gt;&lt;sys_script_fix action="INSERT_OR_UPDATE"&gt;&lt;before&gt;false&lt;/before&gt;&lt;description&gt;AjaxAdapter Portal Autoload.
+Creates the AjaxProxy JS Include and links it to every theme. DRY_RUN=true by default.&lt;/description&gt;&lt;name&gt;AjaxAdapter - link Include to themes&lt;/name&gt;&lt;record_for_rollback&gt;true&lt;/record_for_rollback&gt;&lt;script&gt;&lt;![CDATA[(function () {
+    var DRY_RUN = false; // set true to preview without creating links
+    var util = new AjaxAdapterPortalUtil();
+    var includeId = DRY_RUN ? util.getIncludeId() : util.ensureInclude();
+    if (!includeId &amp;&amp; !DRY_RUN) {
+        gs.print('ABORT: UI Script "AjaxProxy" not found. Install the AjaxProxy UI Script first.');
+        return;
+    }
+    gs.print('AjaxProxy JS Include: ' + (includeId || '(none yet)'));
+    var byScope = {};
+    var order = [];
+    var created = 0;
+    var th = new GlideRecord('sp_theme');
+    th.orderBy('sys_scope');
+    th.query();
+    while (th.next()) {
+        var label = th.getDisplayValue('sys_scope') || 'Global';
+        if (!byScope[label]) { byScope[label] = { total: 0, present: 0, missing: 0 }; order.push(label); }
+        byScope[label].total++;
+        if (includeId &amp;&amp; util.hasThemeLink(th.getUniqueValue(), includeId)) { byScope[label].present++; continue; }
+        byScope[label].missing++;
+        if (!DRY_RUN) { util.ensureThemeLink(th.getUniqueValue()); created++; }
+    }
+    for (var i = 0; i &lt; order.length; i++) {
+        var s = byScope[order[i]];
+        gs.print('  ' + order[i] + ': ' + s.total + ' theme(s) | linked ' + s.present + ' | missing ' + s.missing);
+    }
+    gs.print(DRY_RUN ? 'DRY RUN - set DRY_RUN=false to apply.' : ('Created ' + created + ' link(s).'));
+})();]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_fix&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:25:03&lt;/sys_created_on&gt;&lt;sys_id&gt;b5dd4786830a4f10f17ccd60ceaad328&lt;/sys_id&gt;&lt;sys_mod_count&gt;6&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - link Include to themes&lt;/sys_name&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_fix_b5dd4786830a4f10f17ccd60ceaad328&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:37:25&lt;/sys_updated_on&gt;&lt;unloadable&gt;false&lt;/unloadable&gt;&lt;/sys_script_fix&gt;&lt;/record_update&gt;</payload>
+<payload_hash>-621322872</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>be9e9b8a838a4f10f17ccd60ceaad3e4</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f625945080000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxAdapter - link Include to themes</target_name>
+<type>Fix Script</type>
+<update_domain>global</update_domain>
+<update_guid>fd6e978a228a4f105058ae3497274692</update_guid>
+<update_guid_history>fd6e978a228a4f105058ae3497274692:-621322872,a9f8d38e2f4a4f1016b44700da7de9dc:645700915,3c67db8ad24a4f101223539b1ddbc819:1732688343,4d575f8a2b4a4f108246c9de235dcf02:413942064,e3f45f46654a4f107179d1b34e35badc:944100221,f0109bca630a4f10bf69c878413b6a49:-1501633598,f9dd4786f30a4f1009acdc5aebdb9d2b:16420520</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_include_5083db82834a4f10f17ccd60ceaad3be</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;public&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;global.AjaxAdapterUsage&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;true&lt;/client_callable&gt;&lt;description&gt;AjaxAdapter usage counter.
+Client-callable endpoint (via AjaxProxy) that counts client-side scripts referencing AjaxProxy vs raw GlideAjax across sys_script_client, catalog_script_client, sys_ui_script, sp_widget, sys_ui_page, sys_ui_macro and sys_ui_action.&lt;/description&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;AjaxAdapterUsage&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[var AjaxAdapterUsage = Class.create();
+AjaxAdapterUsage.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    getUsage: AjaxAdapter.expose('_getUsage'),
+
+    // Tables where a client-side script can reference GlideAjax / AjaxProxy.
+    _getUsage: function () {
+        var TARGETS = [
+            { table: 'sys_script_client', field: 'script' },
+            { table: 'catalog_script_client', field: 'script' },
+            { table: 'sys_ui_script', field: 'script' },
+            { table: 'sp_widget', field: 'client_script' },
+            { table: 'sys_ui_page', field: 'client_script' },
+            { table: 'sys_ui_macro', field: 'xml' },
+            { table: 'sys_ui_action', field: 'script' }
+        ];
+        var ajaxProxy = 0;
+        var glideAjax = 0;
+        for (var i = 0; i &lt; TARGETS.length; i++) {
+            ajaxProxy += this._countLike(TARGETS[i].table, TARGETS[i].field, 'AjaxProxy');
+            glideAjax += this._countLike(TARGETS[i].table, TARGETS[i].field, 'GlideAjax');
+        }
+        return { ajaxProxy: ajaxProxy, glideAjax: glideAjax };
+    },
+
+    _countLike: function (table, field, needle) {
+        try {
+            var ga = new GlideAggregate(table);
+            ga.addEncodedQuery(field + 'LIKE' + needle);
+            ga.addAggregate('COUNT');
+            ga.query();
+            return ga.next() ? (Number(ga.getAggregate('COUNT')) || 0) : 0;
+        } catch (e) {
+            return 0;
+        }
+    },
+
+    type: 'AjaxAdapterUsage'
+});]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 19:49:48&lt;/sys_created_on&gt;&lt;sys_id&gt;5083db82834a4f10f17ccd60ceaad3be&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapterUsage&lt;/sys_name&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_5083db82834a4f10f17ccd60ceaad3be&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:14:11&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+<payload_hash>78288185</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>f29e9b8a838a4f10f17ccd60ceaad3e5</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f6243ff0f0000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table/>
+<target_name>AjaxAdapterUsage</target_name>
+<type>Script Include</type>
+<update_domain>global</update_domain>
+<update_guid>6d19d78e2c4a4f109b90f29fbf2dde27</update_guid>
+<update_guid_history>6d19d78e2c4a4f109b90f29fbf2dde27:78288185,ba741f06134a4f10be57de8139ee98d0:-1405608620,d883db82a04a4f10fd7408bb03ae57c2:78288185</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_339b1fc2838a4f10f17ccd60ceaad36c</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;true&lt;/action_delete&gt;&lt;action_insert&gt;false&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;false&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;sys_script_include&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter guardrail.
+Blocks deleting the AjaxAdapter Script Include. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition table="sys_script_include"&gt;name=AjaxAdapter&lt;item endquery="false" field="name" goto="false" newquery="false" operator="=" or="false" value="AjaxAdapter"/&gt;&lt;/filter_condition&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - protect Adapter Script&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    gs.addErrorMessage('The AjaxAdapter Script Include is required and cannot be deleted. Set property ajaxadapter.portal.lock to false to uninstall.');
+    current.setAbortAction(true);
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 20:25:15&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;339b1fc2838a4f10f17ccd60ceaad36c&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - protect Adapter Script&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_339b1fc2838a4f10f17ccd60ceaad36c&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:15&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;before&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=339b1fc2838a4f10f17ccd60ceaad36c"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>730569141</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>fa9e9b8a838a4f10f17ccd60ceaad3e2</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e23070000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>sys_script_include</table>
+<target_name>AjaxAdapter - protect Adapter Script</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>379b1fc2ba8a4f100d506ec167539b71</update_guid>
+<update_guid_history>379b1fc2ba8a4f100d506ec167539b71:730569141</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+<sys_update_xml action="INSERT_OR_UPDATE">
+<action>INSERT_OR_UPDATE</action>
+<application display_value="Global">global</application>
+<category>customer</category>
+<comments/>
+<name>sys_script_af9b1fc2838a4f10f17ccd60ceaad363</name>
+<payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update sys_domain="global" table="sys_script"&gt;&lt;sys_script action="INSERT_OR_UPDATE"&gt;&lt;abort_action&gt;false&lt;/abort_action&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;action_delete&gt;true&lt;/action_delete&gt;&lt;action_insert&gt;false&lt;/action_insert&gt;&lt;action_query&gt;false&lt;/action_query&gt;&lt;action_update&gt;false&lt;/action_update&gt;&lt;active&gt;true&lt;/active&gt;&lt;add_message&gt;false&lt;/add_message&gt;&lt;advanced&gt;true&lt;/advanced&gt;&lt;change_fields&gt;false&lt;/change_fields&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;collection&gt;sys_ui_script&lt;/collection&gt;&lt;condition/&gt;&lt;description&gt;AjaxAdapter guardrail.
+Blocks deleting the AjaxProxy UI Script. Bypassed when ajaxadapter.portal.lock is false.&lt;/description&gt;&lt;execute_function&gt;false&lt;/execute_function&gt;&lt;filter_condition table="sys_ui_script"&gt;name=AjaxProxy&lt;item endquery="false" field="name" goto="false" newquery="false" operator="=" or="false" value="AjaxProxy"/&gt;&lt;/filter_condition&gt;&lt;is_rest&gt;false&lt;/is_rest&gt;&lt;message/&gt;&lt;name&gt;AjaxAdapter - protect UI Script&lt;/name&gt;&lt;order&gt;100&lt;/order&gt;&lt;priority&gt;100&lt;/priority&gt;&lt;rest_method/&gt;&lt;rest_method_text/&gt;&lt;rest_service/&gt;&lt;rest_service_text/&gt;&lt;rest_variables/&gt;&lt;role_conditions/&gt;&lt;script&gt;&lt;![CDATA[(function executeRule(current, previous) {
+    if (gs.getProperty('ajaxadapter.portal.lock', 'true') !== 'true') {
+        return;
+    }
+    gs.addErrorMessage('The AjaxProxy UI Script is required by AjaxAdapter and cannot be deleted. Set property ajaxadapter.portal.lock to false to uninstall.');
+    current.setAbortAction(true);
+})(current, previous);]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-07-14 20:25:15&lt;/sys_created_on&gt;&lt;sys_domain&gt;global&lt;/sys_domain&gt;&lt;sys_domain_path&gt;/&lt;/sys_domain_path&gt;&lt;sys_id&gt;af9b1fc2838a4f10f17ccd60ceaad363&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;AjaxAdapter - protect UI Script&lt;/sys_name&gt;&lt;sys_overrides/&gt;&lt;sys_package display_value="Global" source="global"&gt;global&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Global"&gt;global&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_af9b1fc2838a4f10f17ccd60ceaad363&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-07-14 20:25:15&lt;/sys_updated_on&gt;&lt;template/&gt;&lt;when&gt;before&lt;/when&gt;&lt;/sys_script&gt;&lt;sys_translated_text action="delete_multiple" query="documentkey=af9b1fc2838a4f10f17ccd60ceaad363"/&gt;&lt;/record_update&gt;</payload>
+<payload_hash>200940219</payload_hash>
+<remote_update_set display_value="AjaxAdapter v1.1.0">3e9e9b8a838a4f10f17ccd60ceaad3e1</remote_update_set>
+<replace_on_upgrade>false</replace_on_upgrade>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2026-07-14 20:38:18</sys_created_on>
+<sys_id>fe9e9b8a838a4f10f17ccd60ceaad3e3</sys_id>
+<sys_mod_count>0</sys_mod_count>
+<sys_recorded_at>19f624e22d00000001</sys_recorded_at>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2026-07-14 20:38:18</sys_updated_on>
+<table>sys_ui_script</table>
+<target_name>AjaxAdapter - protect UI Script</target_name>
+<type>Business Rule</type>
+<update_domain>global</update_domain>
+<update_guid>b39b1fc2788a4f10e196ca1ea235b269</update_guid>
+<update_guid_history>b39b1fc2788a4f10e196ca1ea235b269:200940219</update_guid_history>
+<update_set display_value=""/>
+<view/>
+</sys_update_xml>
+</unload>

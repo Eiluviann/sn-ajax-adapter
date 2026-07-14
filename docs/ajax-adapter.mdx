@@ -17,7 +17,9 @@ Write a typed, unit-testable method on the server. Call it from the browser like
 
 ### 1. Install once
 
-Two platform records, created one time:
+Fastest path: import `dist/ajax-adapter-v1.1.0.update-set.xml` (Retrieved Update Sets → Import from XML → Preview → Commit), then run the Fix Script **`AjaxAdapter - link Include to themes`**. That lands both core records plus Service Portal auto-load and guardrails. See [Install](#install) for the details and the by-hand alternative.
+
+To do it by hand, create two platform records:
 
 - **`AjaxAdapter`**: a Script Include (**Client callable: off**). Paste `ajax-adapter.script-include.js`.
 - **`AjaxProxy`**: a UI Script (**Global: on**, **UI Type: Desktop** — not "All"). Paste `ajax-proxy.ui-script.js`. For Service Portal loading, see [Install](#install).
@@ -300,14 +302,18 @@ Everything above in full. Read top-to-bottom or jump to what you need.
 
 ### Install
 
+**Recommended — the update set.** Import `dist/ajax-adapter-v1.1.0.update-set.xml` (Retrieved Update Sets → Import Update Set from XML → Preview → Commit), then run the Fix Script `AjaxAdapter - link Include to themes`. It installs both core records, wires `AjaxProxy` onto every Service Portal theme, and adds guardrails that keep the UI Script on Global + UI Type Desktop + Active and protect the records from deletion. Uninstall by setting the system property `ajaxadapter.portal.lock` to `false`, then deleting the records.
+
+**By hand** — create the two core records:
+
 | Record | Type | Setting | Source |
 | --- | --- | --- | --- |
 | `AjaxAdapter` | Script Include | Client callable **off** | `ajax-adapter.script-include.js` |
 | `AjaxProxy` | UI Script | **Global: on**, **UI Type: Desktop** (not "All") | `ajax-proxy.ui-script.js` |
 
-**Service Portal.** The Global flag is a classic-UI loader; load `AjaxProxy` on a portal explicitly — either **portal-wide** by adding it as a **JS Include** (Source = UI Script → `AjaxProxy`) to your portal **Theme**, or **per widget** by adding that JS Include to a **Dependency** on the specific widgets that need it. `AjaxAdapter` must be reachable from your endpoint's scope (**Accessible from: All application scopes** if you share it).
+**Service Portal (manual).** The Global flag is a classic-UI loader; load `AjaxProxy` on a portal explicitly — either **portal-wide** by adding it as a **JS Include** (Source = UI Script → `AjaxProxy`) to your portal **Theme**, or **per widget** by adding that JS Include to a **Dependency** on the specific widgets that need it. `AjaxAdapter` must be reachable from your endpoint's scope (**Accessible from: All application scopes** if you share it).
 
-> **UI Type must be `Desktop`, not `All`.** The global UI-Script auto-loader only emits `Desktop`-typed scripts; `All` (or `Mobile`) removes it from that bucket, so it silently stops loading in **both** the classic UI and Service Portal — even a top-level `console.log` won't fire. Keep `Global: on` + `UI Type: Desktop`.
+> **UI Type must be `Desktop`, not `All`.** The global UI-Script auto-loader only emits `Desktop`-typed scripts; `All` (or `Mobile`) removes it from that bucket, so it silently stops loading in **both** the classic UI and Service Portal — even a top-level `console.log` won't fire. Keep `Global: on` + `UI Type: Desktop`. (The update set enforces this for you.)
 
 ### `AjaxProxy.call(scriptInclude, method, params, options?)`
 

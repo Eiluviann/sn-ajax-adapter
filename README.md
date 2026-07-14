@@ -9,19 +9,30 @@ Type-safe, boilerplate-free GlideAjax for ServiceNow. Write a typed, unit-testab
 
 ## Install
 
-Two platform records, created one time:
+### Option A — import the update set (recommended)
+
+[`dist/ajax-adapter-v1.1.0.update-set.xml`](dist/ajax-adapter-v1.1.0.update-set.xml) installs everything: both core records, Service Portal auto-load, and the guardrails.
+
+1. **Retrieved Update Sets → Import Update Set from XML** → upload the file.
+2. Open the **`AjaxAdapter v1.1.0`** set → **Preview Update Set**, then **Commit Update Set**.
+3. Run the Fix Script **`AjaxAdapter - link Include to themes`** — it links `AjaxProxy` to every Service Portal theme. (Fix Scripts don't run automatically on commit.)
+
+Done. `AjaxProxy` now loads on every portal, its config is guarded (Global + UI Type Desktop + Active are enforced, and the `AjaxProxy`/`AjaxAdapter` records are protected from deletion), and current adoption shows as a banner on the `m2m_sp_theme_js_include` link form.
+
+**Uninstall:** set the system property **`ajaxadapter.portal.lock`** to `false` to release all guardrails, then delete the records.
+
+### Option B — two records by hand
+
+If you only want the core (no Service Portal auto-load or guardrails), create just these:
 
 | Record | Type | Setting | Source |
 | --- | --- | --- | --- |
 | `AjaxAdapter` | Script Include | Client callable **off**. Accessible from **all application scopes** if shared | [`src/ajax-adapter.script-include.js`](src/ajax-adapter.script-include.js) |
-| `AjaxProxy` | UI Script | **Global: on**, **UI Type: Desktop** (not "All" — see the warning below) | [`src/ajax-proxy.ui-script.js`](src/ajax-proxy.ui-script.js) |
+| `AjaxProxy` | UI Script | **Global: on**, **UI Type: Desktop** (never "All") | [`src/ajax-proxy.ui-script.js`](src/ajax-proxy.ui-script.js) |
 
-**Service Portal.** The UI Script's Global flag is a classic-UI loader; a portal won't pick it up from that alone. Load `AjaxProxy` on the portal one of two ways:
+**Service Portal (manual).** The Global flag is a classic-UI loader; a portal won't pick it up from that alone — load `AjaxProxy` explicitly, either as a **JS Include** on the portal **Theme** (whole portal) or a widget **Dependency** (specific widgets). The update set (Option A) wires this across every theme for you.
 
-- **Whole portal:** create a **JS Include** (_Service Portal → JS Includes_, Source = **UI Script** → `AjaxProxy`) and add it to your portal **Theme**'s _JS Includes_ related list. It then loads on every page of that portal.
-- **Specific widgets:** add that JS Include to a **Dependency** and attach the dependency to just the widgets that need it.
-
-> ⚠️ **Keep the UI Script on `UI Type = Desktop`, never `All`.** The platform's global UI-Script auto-loader only emits scripts whose UI Type is `Desktop`. Setting it to `All` (or `Mobile`) drops it from that bucket, so it **silently stops loading in both the classic UI and Service Portal** — a top-level `console.log` won't even fire. `Global: on` + `UI Type: Desktop` is the working combination.
+> ⚠️ **Keep the UI Script on `UI Type = Desktop`, never `All`.** The platform's global UI-Script auto-loader only emits scripts whose UI Type is `Desktop`. Setting it to `All` (or `Mobile`) drops it from that bucket, so it **silently stops loading in both the classic UI and Service Portal** — a top-level `console.log` won't even fire. `Global: on` + `UI Type: Desktop` is the working combination. (Option A enforces this automatically.)
 
 ## Quick start
 
@@ -175,7 +186,8 @@ Because the private methods never touch `this.request`, the whole class is reusa
 
 ```
 src/       AjaxAdapter (server) + AjaxProxy (client), the two files you install
-examples/  UserLookupAjax, a complete endpoint showing every pattern
+dist/      importable ServiceNow update set — full install (core + Service Portal auto-load + guardrails)
+examples/  UserLookupAjax endpoint, plus the service-portal-autoload feature source
 docs/      ajax-adapter.mdx, the full, styled documentation
 tests/     Vitest suite for both files (npm install && npm test), no instance needed
 ```
