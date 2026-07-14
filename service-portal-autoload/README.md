@@ -5,8 +5,8 @@ client scripts can call `AjaxProxy` on the form — and keeps it there. A Fix Sc
 it to all themes, and Business Rules self-heal and protect the link.
 
 > **The packaged, ready-to-install version of this feature is the update set at
-> [`dist/ajax-adapter-v1.1.0.update-set.xml`](../../dist/ajax-adapter-v1.1.0.update-set.xml)** —
-> import that instead of building by hand (see the repo [README](../../README.md) → Install).
+> [`dist/ajax-adapter-v1.1.0.update-set.xml`](../dist/ajax-adapter-v1.1.0.update-set.xml)** —
+> import that instead of building by hand (see the repo [README](../README.md) → Install).
 > The shipped set names its records with the **`AjaxAdapter`** prefix (e.g. `AjaxAdapterPortalUtil`,
 > `AjaxAdapter - …`) and adds pieces this annotated reference does not: the `AjaxAdapterUsage`
 > counter + m2m form banner, UI-Script config enforcement, deletion guards, and the

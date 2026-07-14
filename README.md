@@ -185,11 +185,12 @@ Because the private methods never touch `this.request`, the whole class is reusa
 ## Repo layout
 
 ```
-src/       AjaxAdapter (server) + AjaxProxy (client), the two files you install
-dist/      importable ServiceNow update set — full install (core + Service Portal auto-load + guardrails)
-examples/  UserLookupAjax endpoint, usage/ (one endpoint called from widget/catalog/classic/UI-action), service-portal-autoload feature source
-docs/      ajax-adapter.mdx, the full, styled documentation
-tests/     Vitest suite for both files (npm install && npm test), no instance needed
+src/                     AjaxAdapter (server) + AjaxProxy (client), the two files you install
+dist/                    importable ServiceNow update set — full install (core + Service Portal auto-load + guardrails)
+examples/                UserLookupAjax endpoint + usage/ (one endpoint called from widget/catalog/classic/UI-action/browser)
+service-portal-autoload/ annotated source of the Service Portal auto-load feature packaged in dist/
+docs/                    ajax-adapter.mdx, the full, styled documentation
+tests/                   Vitest suite (npm install && npm test), no instance needed
 ```
 
 ## Version
